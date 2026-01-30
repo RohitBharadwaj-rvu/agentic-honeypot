@@ -18,6 +18,10 @@ Ensure the system stays quiet when it should.
     * *Expect:* No Callback sent (or Callback sent with `scamDetected=True` but empty intelligence, depending on business logic).
 * **Case C (Resource Limits):** Simulate high volume (10k+) sessions.
     * *Expect:* Session state size must remain < 1KB avg to fit 256MB. System must handle Upstash connection limits gracefully.
+* **Case D (TTL & Cleanup):** Check key existence after 61 minutes.
+    * *Expect:* Key `honeypot:session:{sessionId}` must be deleted automatically.
+* **Case E (Redis Failure):** Simulate Redis outage (wrong credentials/network block).
+    * *Expect:* API returns 200 OK. System falls back to local memory. No crash.
 
 ## 3. Testing Layers
 

@@ -5,7 +5,7 @@
 * **Web Framework:** FastAPI (Async is mandatory).
 * **WSGI/ASGI:** Uvicorn.
 * **Data Validation:** Pydantic V2 (Strict typing is required).
-* **Session Storage:** Upstash Redis (Free Tier). Handles ~250k daily commands. Session size must be optimized (<1KB) to support 10k-50k concurrent sessions within the 256MB limit.
+* **Session Storage:** Upstash Redis (Free Tier). Handles ~250k daily commands. Session size <1KB. **TTL: 1 hour** (Mandatory).
 * **Orchestrator:** **LangGraph** (State machine based).
 
 ## 2. Model Selection Strategy (OpenRouter)
@@ -27,6 +27,9 @@ To ensure testing reliability and system stability, strict parameters apply:
 
 ## 4. System Components
 1.  **Ingress (FastAPI):** Validates keys and schema.
-2.  **Session Manager (Upstash):** Hydrates the state for the specific `sessionId` (Robustness: Monitor key size/count).
+2.  **Session Manager (Upstash):** 
+    *   **Key Schema:** `honeypot:session:{sessionId}`
+    *   **Robustness:** Monitor key size/count.
+    *   **Degradation:** Falls back to in-process memory store (LRU Cache) if Redis is unavailable.
 3.  **The Brain (LangGraph):** Orchestrates the `Detect -> Engage -> Extract` flow.
 4.  **Egress (Callback Manager):** Handles the final POST to the evaluation server.
