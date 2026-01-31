@@ -9,44 +9,22 @@ from typing import Dict, Any, List
 
 from app.agent.state import AgentState
 from app.agent.llm import call_llm
-
-
-# Regex patterns
-UPI_PATTERN = re.compile(r'\b[a-zA-Z0-9._-]+@[a-zA-Z]{2,}\b')
-PHONE_PATTERN = re.compile(r'(?:\+91[\s-]?)?[6-9]\d{9}\b|\b\d{10}\b')
-LINK_PATTERN = re.compile(r'https?://[^\s<>"\']+|www\.[^\s<>"\']+')
-# Bank account: 9-18 digit numbers (Indian bank accounts are typically 9-18 digits)
-BANK_ACCOUNT_PATTERN = re.compile(r'\b\d{9,18}\b')
-
-# Email domains to exclude from UPI detection
-EMAIL_DOMAINS = {'gmail', 'yahoo', 'hotmail', 'outlook', 'email', 'mail', 'proton'}
-
-# Suspicious keywords (from detector.py) for extraction
-SUSPICIOUS_KEYWORDS = [
-    "urgent", "urgently", "immediately", "kyc", "blocked", "suspended",
-    "frozen", "verify", "verification", "expire", "expiring", "legal action",
-    "police", "arrest", "deadline", "last chance", "account will be",
-    "turant", "abhi", "jaldi", "otp", "pin", "cvv", "send money", "transfer",
-]
-
-
-EXTRACT_SYSTEM_PROMPT = """Extract any suspicious data from the message.
-
-Return JSON only:
-{
-    "upiIds": ["list of UPI IDs like abc@upi, xyz@paytm"],
-    "phoneNumbers": ["list of 10-digit phone numbers"],
-    "phishingLinks": ["list of URLs"],
-    "bankAccounts": ["list of bank account numbers (9-18 digits)"]
-}
-
-If nothing found, return empty lists. JSON only, no explanation."""
+from app.core.rules import (
+    UPI_PATTERN,
+    PHONE_PATTERN,
+    LINK_PATTERN,
+    BANK_ACCOUNT_PATTERN,
+    BANK_ACCOUNT_CONTEXT_WORDS,
+    EMAIL_DOMAINS_TO_EXCLUDE,
+    SUSPECTED_SCAM_KEYWORDS,
+    EXTRACT_SYSTEM_PROMPT,
+)
 
 
 def _extract_upi_ids(text: str) -> List[str]:
     """Extract UPI IDs from text using regex."""
     matches = UPI_PATTERN.findall(text)
-    return [m for m in matches if m.split('@')[1].lower() not in EMAIL_DOMAINS]
+    return [m for m in matches if m.split('@')[1].lower() not in EMAIL_DOMAINS_TO_EXCLUDE]
 
 
 def _extract_phone_numbers(text: str) -> List[str]:
@@ -86,7 +64,7 @@ def _extract_suspicious_keywords(text: str) -> List[str]:
     """Extract suspicious keywords found in the text."""
     text_lower = text.lower()
     found = []
-    for keyword in SUSPICIOUS_KEYWORDS:
+    for keyword in SUSPECTED_SCAM_KEYWORDS:
         if keyword in text_lower:
             found.append(keyword)
     return found

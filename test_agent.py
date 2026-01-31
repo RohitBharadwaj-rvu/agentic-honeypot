@@ -3,7 +3,7 @@ Test script for the LangGraph agent.
 Run: python test_agent.py
 """
 import asyncio
-from app.agent.graph import run_agent
+from app.agent.workflow import run_agent
 
 
 async def test_agent():

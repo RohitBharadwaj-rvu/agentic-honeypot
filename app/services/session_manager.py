@@ -1,16 +1,16 @@
 """
-Session Manager with Upstash Redis and LRU Cache Fallback.
+Session Manager with Upstash Redis and Local File Store Fallback.
 Handles session persistence with automatic TTL and graceful degradation.
 """
 import logging
 from typing import Optional
 from functools import lru_cache
-from collections import OrderedDict
 import httpx
 import orjson
 
 from app.config import get_settings
 from app.schemas.session import SessionData
+from app.services.local_store import LocalFileStore
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class LRUCache:
 class SessionManager:
     """
     Manages session state with Upstash Redis REST API.
-    Falls back to in-memory LRU cache if Redis is unavailable.
+    Falls back to LocalFileStore if Redis is unavailable.
     
     Key Schema: honeypot:session:{sessionId}
     TTL: 1 hour (3600 seconds)
@@ -60,8 +60,8 @@ class SessionManager:
         self.ttl = settings.SESSION_TTL_SECONDS
         self.key_prefix = settings.SESSION_KEY_PREFIX
         
-        # Fallback cache
-        self._fallback_cache = LRUCache(max_size=settings.MEMORY_CACHE_MAX_SIZE)
+        # Fallback to persistent local file store
+        self._fallback_store = LocalFileStore()
         self._using_fallback = False
         
         # HTTP client for Upstash REST API
@@ -109,11 +109,10 @@ class SessionManager:
                 logger.error(f"Redis connection failed, switching to fallback: {e}")
                 self._using_fallback = True
         
-        # Fallback to in-memory cache
-        cached = self._fallback_cache.get(key)
+        # Fallback to local file store
+        cached = self._fallback_store.get(session_id)
         if cached:
-            session_dict = orjson.loads(cached)
-            return SessionData(**session_dict)
+            return SessionData(**cached)
         
         return None
     
@@ -146,8 +145,8 @@ class SessionManager:
                 logger.error(f"Redis save failed, using fallback: {e}")
                 self._using_fallback = True
         
-        # Fallback to in-memory cache
-        self._fallback_cache.set(key, orjson.dumps(data.model_dump()))
+        # Fallback to local file store
+        self._fallback_store.set(session_id, data.model_dump(), ttl_seconds=self.ttl)
         return True
     
     async def delete_session(self, session_id: str) -> bool:
@@ -162,7 +161,7 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Redis delete failed: {e}")
         
-        return self._fallback_cache.delete(key)
+        return self._fallback_store.delete(session_id)
     
     async def close(self) -> None:
         """Close the HTTP client."""
