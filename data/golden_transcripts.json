@@ -1,0 +1,446 @@
+{
+    "version": "1.0",
+    "description": "Golden scam transcripts for testing and prompt tuning",
+    "transcripts": [
+        {
+            "id": "scam_001",
+            "type": "kyc_fraud",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Dear customer, your SBI account has been blocked due to incomplete KYC. Update immediately to avoid permanent suspension."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Oh my god! Blocked? But I have my pension there! What do I do beta?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Don't worry sir. Just click this link and update your details: http://sbi-kyc-update.xyz"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Link? Wait, let me get my reading glasses... My eyes are not so good these days."
+                }
+            ]
+        },
+        {
+            "id": "scam_002",
+            "type": "upi_fraud",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "You have won Rs 50,000 cashback! Send Rs 500 to claim. UPI: winner@okaxis"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Hai Ram! 50,000? Really? But why I have to send money to get money?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "It's processing fee sir. Very small amount only."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Processing fee... okay but my UPI is not working. Can you give your phone number? I will call."
+                }
+            ]
+        },
+        {
+            "id": "scam_003",
+            "type": "otp_theft",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "This is HDFC Bank. We detected suspicious activity. Share OTP sent to your phone for verification."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Suspicious? Oh no! Let me check... I got some number on phone. Is OTP same as PIN?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "No sir, OTP is the 6 digit code. Please share quickly before account is frozen."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Wait wait, internet is very slow... Let me restart my phone. One minute please."
+                }
+            ]
+        },
+        {
+            "id": "scam_004",
+            "type": "police_threat",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "This is cyber police. Your Aadhaar is linked to money laundering. Pay Rs 10,000 fine or face arrest."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Police? Arrest? But I am retired government servant! I never did anything wrong!"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir this is very serious. Pay immediately to account 123456789012"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Please beta, I am so scared. Can you come to my house? Where is your office? I will come there."
+                }
+            ]
+        },
+        {
+            "id": "scam_005",
+            "type": "loan_fraud",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Congratulations! You are pre-approved for Rs 5 lakh loan at 0% interest. Apply now at instant-loan.in"
+                },
+                {
+                    "sender": "agent",
+                    "text": "0% interest? That is very good! But I don't need loan... My pension is enough."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir, this is limited offer. Just fill form and pay Rs 2000 processing."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Hmm let me think... Can I ask my son? He is in America, I will call him tonight."
+                }
+            ]
+        },
+        {
+            "id": "scam_006",
+            "type": "electricity_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "URGENT: Your electricity connection will be disconnected in 2 hours. Pay dues immediately."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Disconnected? But I paid last month only! Let me find my receipt..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "No time sir. Pay Rs 3500 to this UPI: electric-pay@ybl before cutoff."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me check the bill... Where did I keep it... Under the mattress maybe..."
+                }
+            ]
+        },
+        {
+            "id": "scam_007",
+            "type": "refund_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Amazon refund of Rs 15,000 pending. Install this app to receive: amazn-refund.apk"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Amazon? I ordered something on Amazon? I don't remember... What did I buy?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir it's automatic refund for cancelled order. Just install and confirm."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Install means download? My phone has no space, it's always showing full..."
+                }
+            ]
+        },
+        {
+            "id": "scam_008",
+            "type": "insurance_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your LIC policy 987654 maturity of Rs 8 lakh ready. Pay Rs 8000 tax to claim."
+                },
+                {
+                    "sender": "agent",
+                    "text": "LIC? I have LIC? Let me check my papers... My wife used to handle these things..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir, payment must be done today. Send to beneficiary@okicici"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Today only? But banks are closed no? And I need to find my cheque book..."
+                }
+            ]
+        },
+        {
+            "id": "scam_009",
+            "type": "courier_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your parcel stuck at customs with illegal items. Contact this number immediately: 9876543210"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Parcel? Illegal? But I didn't order anything from outside! This must be mistake."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Your Aadhaar was misused. Pay Rs 25000 or police will come."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Oh god! Let me call my neighbor, he was in police. One minute please don't disconnect."
+                }
+            ]
+        },
+        {
+            "id": "scam_010",
+            "type": "lottery_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "You won KBC lottery Rs 25 lakh! Transfer verification fee Rs 5000 to claim prize."
+                },
+                {
+                    "sender": "agent",
+                    "text": "KBC? But I never called KBC! Amitabh Bachchan show?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Yes sir random selection. Your mobile won. Send to kbc-verify@paytm"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Really? Let me tell everyone! Wait, can you talk to my son? He knows about these things."
+                }
+            ]
+        },
+        {
+            "id": "scam_011",
+            "type": "hinglish_kyc",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Aapka account band ho jayega kal tak. KYC update karo abhi: sbi-kyc.tk"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Kya? Band? Mera paisa! Mujhe kya karna hai beta?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Link pe click karo aur details bharo. Jaldi karo time kam hai."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Ruko ruko, meri beti ko bulata hoon, woh phone chalana jaanti hai..."
+                }
+            ]
+        },
+        {
+            "id": "scam_012",
+            "type": "tech_support",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Microsoft alert: Your computer has virus. Call 1800-XXXX immediately for free cleanup."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Virus? But I don't have computer, only this phone. Are you sure it's my number?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir your phone also affected. Download TeamViewer for remote fix."
+                },
+                {
+                    "sender": "agent",
+                    "text": "TeamViewer? Is that a TV channel? I have Tata Sky only."
+                }
+            ]
+        },
+        {
+            "id": "scam_013",
+            "type": "sextortion",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "We have your private photos. Pay Rs 50000 or we send to all contacts."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Photos? What photos? I only have photos of my grandchildren. Which photos you mean?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Don't act innocent. Pay to bitcoin address or face shame."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Bitcoin? That is like Facebook? My grandson uses Facebook. He can help pay maybe."
+                }
+            ]
+        },
+        {
+            "id": "scam_014",
+            "type": "job_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Work from home job! Earn Rs 5000 daily. Just invest Rs 1000 to start."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Job? But I am retired! I don't need job now. I get pension every month."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Extra income sir! Pay registration to jobs@okaxis"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Maybe for my grandson then. Let me ask him. What is the company name?"
+                }
+            ]
+        },
+        {
+            "id": "scam_015",
+            "type": "trading_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "100% profit guarantee! Invest Rs 10000 get Rs 1 lakh in 7 days. Join Telegram: t.me/profitking"
+                },
+                {
+                    "sender": "agent",
+                    "text": "1 lakh? That is very good return! But my fixed deposit gives only 7%..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "FD is old method sir. This is crypto trading. Guaranteed returns."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Crypto? Like cryptocurrency? My son said it's risky. Let me confirm with him first."
+                }
+            ]
+        },
+        {
+            "id": "scam_016",
+            "type": "delivery_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your Flipkart order failed delivery. Confirm address and pay Rs 49 redelivery: flipkrt-pay.in"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Flipkart? I think my daughter ordered something. Rs 49 is okay but which order?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Order ID 12345. Pay quickly or order cancelled."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me call my daughter and ask. She orders so many things..."
+                }
+            ]
+        },
+        {
+            "id": "scam_017",
+            "type": "whatsapp_hack",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Hi uncle! This is Rahul. I'm stuck, need Rs 20000 urgently. My phone broken, using friend's."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Rahul? Which Rahul? My nephew Rahul? Why you need money beta?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Hospital emergency uncle. Send to this number: 9876543210. Will return tomorrow."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Hospital? Are you okay? Let me call your mother first. What happened exactly?"
+                }
+            ]
+        },
+        {
+            "id": "scam_018",
+            "type": "pension_scam",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Pension Adalat: Your arrears Rs 2.5 lakh approved. Pay processing Rs 5000 to receive."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Arrears approved? After so long? Which department is this from?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Central Government sir. Pay to pensionarrears@okhdfc before 5pm."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Central Government... Let me go to bank and ask. They will know about this no?"
+                }
+            ]
+        },
+        {
+            "id": "scam_019",
+            "type": "card_blocked",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your ATM card will be blocked due to RBI guidelines. Share card details to update."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Blocked? But I just withdrew money yesterday! The card is working fine."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "New rule sir. All cards need update. Share 16 digit number and CVV."
+                },
+                {
+                    "sender": "agent",
+                    "text": "16 digit? Let me find card... It's in my wallet... Where is my wallet..."
+                }
+            ]
+        },
+        {
+            "id": "scam_020",
+            "type": "gas_booking",
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "HP Gas subsidy Rs 1800 pending. Share bank details for direct credit."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Gas subsidy? Good! But which account? I have SBI and HDFC both."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Share both account numbers and IFSC. We will credit to main account."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Main account means which one? Let me find my passbook and tell you."
+                }
+            ]
+        }
+    ]
+}

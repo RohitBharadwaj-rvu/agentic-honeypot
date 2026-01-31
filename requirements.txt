@@ -1,0 +1,23 @@
+# Core Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Redis (Upstash compatible)
+redis>=5.0.0
+
+# Performance
+orjson>=3.9.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# HTTP Client (for callbacks)
+httpx>=0.26.0
+
+# LangGraph (Agent Orchestration)
+langgraph>=0.3.0
+langchain-core>=0.3.0
