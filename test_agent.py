@@ -76,6 +76,32 @@ async def test_agent():
     print(f"  turn_count: {result.get('turn_count')}")
     print(f"  termination_reason: {result.get('termination_reason')}")
     
+    # Test 6: Bank account extraction
+    print("\n[TEST 6] Bank account extraction")
+    result = await run_agent(
+        session_id="test-006",
+        message="Transfer Rs 50000 to account number 12345678901234 immediately",
+        messages_history=[],
+        metadata={"channel": "SMS", "language": "en", "locale": "IN"},
+        turn_count=1,
+    )
+    print(f"  scam_level: {result.get('scam_level')}")
+    print(f"  extracted bank accounts: {result.get('extracted_intelligence', {}).get('bankAccounts')}")
+    print(f"  extracted keywords: {result.get('extracted_intelligence', {}).get('suspiciousKeywords')}")
+    print(f"  termination_reason: {result.get('termination_reason')}")
+    
+    # Test 7: Suspicious keywords extraction
+    print("\n[TEST 7] Suspicious keywords extraction")
+    result = await run_agent(
+        session_id="test-007",
+        message="Your account is frozen! Verify KYC immediately or face legal action!",
+        messages_history=[],
+        metadata={"channel": "SMS", "language": "en", "locale": "IN"},
+        turn_count=1,
+    )
+    print(f"  scam_level: {result.get('scam_level')}")
+    print(f"  extracted keywords: {result.get('extracted_intelligence', {}).get('suspiciousKeywords')}")
+    
     print("\n" + "=" * 50)
     print("All tests completed!")
     print("=" * 50)
