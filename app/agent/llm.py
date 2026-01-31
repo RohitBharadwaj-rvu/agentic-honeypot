@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 # Model routing configuration
 MODEL_CONFIG = {
     "persona": {
-        "primary": "moonshotai/kimi-k2:free",
-        "fallback": "tngtech/deepseek-r1t2-chimera:free",
+        "primary": "tngtech/deepseek-r1t2-chimera:free",
+        "fallback": "arcee-ai/trinity-mini:free",
     },
     "extract": {
         "primary": "tngtech/deepseek-r1t2-chimera:free",
-        "fallback": None,
+        "fallback": "arcee-ai/trinity-mini:free",
     },
 }
 
