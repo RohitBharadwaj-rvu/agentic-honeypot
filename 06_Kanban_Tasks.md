@@ -10,7 +10,6 @@
 
 ## 🚧 Medium Priority (Remaining Features)
 - [ ] **[Logic]** Implement "Anti-Suspicion" delays/typos.
-- [ ] **[API]** Implement Mandatory Callback (`POST` to Guvi).
 - [ ] **[Test]** Write **Evaluation Parity Test** (Full Lifecycle Simulation).
 
 ## ✅ Completed
@@ -20,3 +19,6 @@
 - [x] **[AI]** Create `LangGraph` workflow.
 - [x] **[Logic]** Implement `IntelligenceExtractor` (Regex + LLM).
 - [x] **[Logic]** Implement Bank Account & Keyword Extraction.
+- [x] **[API]** Implement Mandatory Callback (`POST` to Guvi).
+- [x] **[Data]** Expand Golden Dataset (20 -> 50) with diverse scam types.
+- [x] **[Logic]** Implement Intel-Based Termination Logic (extracted_success).
