@@ -21,3 +21,6 @@ httpx>=0.26.0
 # LangGraph (Agent Orchestration)
 langgraph>=0.3.0
 langchain-core>=0.3.0
+
+# OpenAI SDK (for NVIDIA API)
+openai>=1.0.0
