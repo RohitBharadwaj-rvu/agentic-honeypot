@@ -5,6 +5,7 @@ Handles session persistence with automatic TTL and graceful degradation.
 import logging
 from typing import Optional
 from functools import lru_cache
+from collections import OrderedDict
 import httpx
 import orjson
 

@@ -7,6 +7,7 @@ from typing import Dict, Any, Literal
 
 from langgraph.graph import StateGraph, END
 
+from app.config import get_settings
 from app.agent.state import AgentState
 from app.agent.nodes.detector import detector_node
 from app.agent.nodes.extractor import extractor_node
@@ -121,6 +122,9 @@ async def run_agent(
     """
     logger.info(f"Running agent for session {session_id}, turn {turn_count}")
     
+    # Get settings for persona configuration
+    settings = get_settings()
+    
     # Initialize state
     initial_state: AgentState = {
         "session_id": session_id,
@@ -140,7 +144,7 @@ async def run_agent(
         "termination_reason": None,
         "agent_notes": "",
         "agent_reply": "",
-        "persona_name": "Ramesh",
+        "persona_name": settings.PERSONA_NAME,
         "channel": metadata.get("channel", "SMS"),
         "language": metadata.get("language", "en"),
         "locale": metadata.get("locale", "IN"),

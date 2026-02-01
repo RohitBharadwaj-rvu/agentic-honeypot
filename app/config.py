@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     
     # LRU Cache Fallback Size
     MEMORY_CACHE_MAX_SIZE: int = 1000
+    
+    # Persona Configuration
+    PERSONA_NAME: str = "Ramesh Kumar"
+    PERSONA_AGE: int = 67
+    PERSONA_BACKGROUND: str = "retired government employee"
+    PERSONA_LOCATION: str = "Pune"
 
 
 @lru_cache
