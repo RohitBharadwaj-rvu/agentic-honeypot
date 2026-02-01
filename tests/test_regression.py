@@ -43,8 +43,8 @@ class TestCallbackExactlyOnce:
             
         # Verify callback was tracked
         assert mock_callback_tracker["count"] == 1
-        assert mock_callback_tracker["payloads"][0]["session_id"] == "regression-001"
-        assert mock_callback_tracker["payloads"][0]["scam_detected"] is True
+        assert mock_callback_tracker["payloads"][0]["sessionId"] == "regression-001"
+        assert mock_callback_tracker["payloads"][0]["scamDetected"] is True
 
     @pytest.mark.asyncio
     async def test_no_callback_for_safe_messages(self, session_factory):
@@ -123,11 +123,12 @@ class TestCallbackPayload:
         await mock_send_callback(session)
         
         payload = mock_callback_tracker["payloads"][0]
-        assert "session_id" in payload
-        assert "scam_detected" in payload
-        assert "intel" in payload
-        assert payload["intel"]["upiIds"] == ["scammer@upi"]
-        assert payload["intel"]["bankAccounts"] == ["12345678901234"]
+        assert "sessionId" in payload
+        assert "scamDetected" in payload
+        assert "extractedIntelligence" in payload
+        assert payload["extractedIntelligence"]["upiIds"] == ["scammer@upi"]
+        assert payload["extractedIntelligence"]["bankAccounts"] == ["12345678901234"]
+
 
 
 class TestAgentScamDetection:

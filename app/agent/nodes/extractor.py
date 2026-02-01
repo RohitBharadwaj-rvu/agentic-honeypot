@@ -166,6 +166,18 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
         "suspiciousKeywords": list(existing_keywords | all_keywords),
     }
     
-    return {
+    # Determine if scam is confirmed based on extraction
+    has_critical_intel = bool(
+        merged_intel["upiIds"] or 
+        merged_intel["bankAccounts"] or 
+        merged_intel["phishingLinks"]
+    )
+    
+    result = {
         "extracted_intelligence": merged_intel,
     }
+    
+    if has_critical_intel:
+        result["is_scam_confirmed"] = True
+        
+    return result

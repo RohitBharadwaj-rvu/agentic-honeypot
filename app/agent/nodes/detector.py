@@ -35,6 +35,7 @@ def detector_node(state: AgentState) -> Dict[str, Any]:
             return {
                 "scam_level": "confirmed",
                 "scam_confidence": CONFIDENCE_CONFIRMED,
+                "is_scam_confirmed": True,
             }
     
     # Check for suspected scam indicators

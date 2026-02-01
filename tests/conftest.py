@@ -67,9 +67,11 @@ def mock_send_callback(mock_callback_tracker):
     async def _mock_send(session):
         mock_callback_tracker["count"] += 1
         mock_callback_tracker["payloads"].append({
-            "session_id": session.session_id,
-            "scam_detected": session.is_scam_confirmed,
-            "intel": session.extracted_intelligence,
+            "sessionId": session.session_id,
+            "scamDetected": session.is_scam_confirmed,
+            "extractedIntelligence": session.extracted_intelligence,
+            "totalMessagesExchanged": len(session.messages),
+            "agentNotes": session.agent_notes or "",
         })
         return True
     
