@@ -106,7 +106,7 @@ If nothing found, return empty lists. JSON only, no explanation."""
 # Safe responses when LLM is completely unavailable
 # Cycle through these to maintain conversation flow
 SCRIPT_FALLBACK_RESPONSES: List[str] = [
-    "Hello? Can you hear me?",
+    "Hello? Are you there?",
     "I think the network is bad, please repeat.",
     "Sorry, I didn't catch that. One second...",
     "Ek minute, signal problem hai.",
