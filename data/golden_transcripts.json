@@ -1,10 +1,21 @@
 {
-    "version": "1.0",
-    "description": "Golden scam transcripts for testing and prompt tuning",
+    "version": "2.0",
+    "description": "Golden scam transcripts for testing and prompt tuning - Expanded to 50",
     "transcripts": [
         {
             "id": "scam_001",
             "type": "kyc_fraud",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "http://sbi-kyc-update.xyz"
+                ],
+                "keywords": [
+                    "blocked",
+                    "kyc"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -27,6 +38,17 @@
         {
             "id": "scam_002",
             "type": "upi_fraud",
+            "expected_intel": {
+                "upiIds": [
+                    "winner@okaxis"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "cashback",
+                    "won"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -49,6 +71,16 @@
         {
             "id": "scam_003",
             "type": "otp_theft",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "otp",
+                    "suspicious",
+                    "frozen"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -71,6 +103,18 @@
         {
             "id": "scam_004",
             "type": "police_threat",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "bankAccounts": [
+                    "123456789012"
+                ],
+                "keywords": [
+                    "arrest",
+                    "police",
+                    "aadhaar"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -93,6 +137,17 @@
         {
             "id": "scam_005",
             "type": "loan_fraud",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "instant-loan.in"
+                ],
+                "keywords": [
+                    "loan",
+                    "approved"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -115,6 +170,17 @@
         {
             "id": "scam_006",
             "type": "electricity_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "electric-pay@ybl"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "disconnected",
+                    "urgent"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -137,6 +203,17 @@
         {
             "id": "scam_007",
             "type": "refund_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "amazn-refund.apk"
+                ],
+                "keywords": [
+                    "refund",
+                    "amazon"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -159,6 +236,17 @@
         {
             "id": "scam_008",
             "type": "insurance_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "beneficiary@okicici"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "lic",
+                    "maturity"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -181,6 +269,18 @@
         {
             "id": "scam_009",
             "type": "courier_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [
+                    "9876543210"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "parcel",
+                    "customs",
+                    "illegal"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -203,6 +303,18 @@
         {
             "id": "scam_010",
             "type": "lottery_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "kbc-verify@paytm"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "kbc",
+                    "lottery",
+                    "won"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -225,6 +337,17 @@
         {
             "id": "scam_011",
             "type": "hinglish_kyc",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "sbi-kyc.tk"
+                ],
+                "keywords": [
+                    "band",
+                    "kyc"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -247,6 +370,17 @@
         {
             "id": "scam_012",
             "type": "tech_support",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "TeamViewer"
+                ],
+                "keywords": [
+                    "virus",
+                    "microsoft"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -269,6 +403,16 @@
         {
             "id": "scam_013",
             "type": "sextortion",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "photos",
+                    "bitcoin",
+                    "shame"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -291,6 +435,17 @@
         {
             "id": "scam_014",
             "type": "job_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "jobs@okaxis"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "job",
+                    "work from home"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -313,6 +468,18 @@
         {
             "id": "scam_015",
             "type": "trading_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "t.me/profitking"
+                ],
+                "keywords": [
+                    "profit",
+                    "crypto",
+                    "guaranteed"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -335,6 +502,17 @@
         {
             "id": "scam_016",
             "type": "delivery_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "flipkrt-pay.in"
+                ],
+                "keywords": [
+                    "flipkart",
+                    "delivery"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -357,6 +535,17 @@
         {
             "id": "scam_017",
             "type": "whatsapp_hack",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [
+                    "9876543210"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "emergency",
+                    "hospital"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -379,6 +568,17 @@
         {
             "id": "scam_018",
             "type": "pension_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "pensionarrears@okhdfc"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "pension",
+                    "arrears"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -401,6 +601,17 @@
         {
             "id": "scam_019",
             "type": "card_blocked",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "atm",
+                    "blocked",
+                    "rbi",
+                    "cvv"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -423,6 +634,15 @@
         {
             "id": "scam_020",
             "type": "gas_booking",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "bankAccounts": [],
+                "keywords": [
+                    "gas",
+                    "subsidy"
+                ]
+            },
             "messages": [
                 {
                     "sender": "scammer",
@@ -439,6 +659,1057 @@
                 {
                     "sender": "agent",
                     "text": "Main account means which one? Let me find my passbook and tell you."
+                }
+            ]
+        },
+        {
+            "id": "scam_021",
+            "type": "crypto_investment",
+            "expected_intel": {
+                "upiIds": [
+                    "cryptoking@okaxis"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "binance-india.tk"
+                ],
+                "keywords": [
+                    "bitcoin",
+                    "investment",
+                    "double"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Invest Rs 50,000 in Bitcoin today, get Rs 2 lakh in 15 days! Limited time offer from binance-india.tk"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Bitcoin? I heard it in news. Is it safe? The government said something about it..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Completely legal sir. Many people earning lakhs daily. Send to cryptoking@okaxis to start."
+                },
+                {
+                    "sender": "agent",
+                    "text": "2 lakh in 15 days? Let me discuss with my son-in-law. He works in IT company."
+                }
+            ]
+        },
+        {
+            "id": "scam_022",
+            "type": "romance_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "lisa.miller@ybl"
+                ],
+                "phoneNumbers": [
+                    "8899112233"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "love",
+                    "customs",
+                    "gift"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Hello dear! I am Lisa from USA. I sent you expensive gift but it's stuck at customs. Please pay Rs 15000 to release."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Lisa? I don't know any Lisa... Who are you? Why you are sending me gift?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "We chatted on Facebook dear. I love you. Pay to lisa.miller@ybl. Call me: 8899112233"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Facebook? But I don't use Facebook... My grandson makes the account but I never use."
+                }
+            ]
+        },
+        {
+            "id": "scam_023",
+            "type": "rental_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "owner.kumar@okicici"
+                ],
+                "phoneNumbers": [
+                    "7788990011"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "flat",
+                    "rent",
+                    "advance"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "2BHK flat available in Koramangala for Rs 8000/month only. Pay Rs 5000 advance to book. UPI: owner.kumar@okicici"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Rs 8000 in Koramangala? That is very cheap! Where exactly is the flat?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Near Jyoti Nivas College. Many people interested. Pay now or you will lose. Call 7788990011"
+                },
+                {
+                    "sender": "agent",
+                    "text": "But I should see the flat first no? Can I come and see tomorrow?"
+                }
+            ]
+        },
+        {
+            "id": "scam_024",
+            "type": "govt_impersonation",
+            "expected_intel": {
+                "upiIds": [
+                    "epfo.refund@ybl"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "epfo",
+                    "pf",
+                    "refund"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "EPFO Alert: Your PF refund of Rs 75,000 is pending. Click to claim or pay processing fee Rs 2000 to epfo.refund@ybl"
+                },
+                {
+                    "sender": "agent",
+                    "text": "PF refund? But I already got my PF when I retired. How is this pending?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Sir this is additional interest accumulated. Government new scheme."
+                },
+                {
+                    "sender": "agent",
+                    "text": "New scheme? Let me ask at the PF office. I will go there tomorrow."
+                }
+            ]
+        },
+        {
+            "id": "scam_025",
+            "type": "hinglish_upi",
+            "expected_intel": {
+                "upiIds": [
+                    "reward@paytm"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "paytm",
+                    "reward"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Paytm reward mil gaya aapko! Rs 10,000 cashback. Claim karo: reward@paytm pe ₹100 bhejo"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Paytm reward? Maine toh kuch order nahi kiya. Kaise mila ye reward?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Random lucky draw sir. Aap lucky customer hain. Jaldi bhejo claim expire ho jayega."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Lucky draw? Hmm... mujhe apne bete ko call karna padega. Woh batayega sahi hai ya nahi."
+                }
+            ]
+        },
+        {
+            "id": "scam_026",
+            "type": "income_tax_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "incometax.refund@okhdfc"
+                ],
+                "phoneNumbers": [
+                    "9988776655"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "income tax",
+                    "refund",
+                    "fy"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Income Tax Dept: Refund of Rs 32,500 for FY 2024-25 approved. Pay Rs 1500 processing. UPI: incometax.refund@okhdfc"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Income tax refund? But I filed through my CA. He never mentioned this..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "This is direct from department sir. Call 9988776655 for verification."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me first call my CA tomorrow. He handles all my tax matters."
+                }
+            ]
+        },
+        {
+            "id": "scam_027",
+            "type": "aadhaar_fraud",
+            "expected_intel": {
+                "upiIds": [
+                    "uidai.verify@ybl"
+                ],
+                "phoneNumbers": [
+                    "1800XXXXXX"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "aadhaar",
+                    "deactivated",
+                    "uidai"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "UIDAI Alert: Your Aadhaar will be deactivated in 24 hours. Update documents now. Pay Rs 500 to uidai.verify@ybl"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Aadhaar deactivated? But I just used it for pension last month! It was working fine."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "New verification required sir. Call 1800XXXXXX or pay immediately."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Hmm this sounds suspicious... I will go to Aadhaar center near my house and ask."
+                }
+            ]
+        },
+        {
+            "id": "scam_028",
+            "type": "sim_swap_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [
+                    "customer.care@telecom"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "sim",
+                    "upgrade",
+                    "5g"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your SIM will stop working tomorrow. Upgrade to 5G free. Share OTP to activate new SIM."
+                },
+                {
+                    "sender": "agent",
+                    "text": "5G? What is 5G? My phone is working fine with whatever G it has..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Government mandate sir. All old SIMs being cancelled. Share OTP quickly."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Government mandate? Let me go to Jio store near bus stand. They will help me upgrade."
+                }
+            ]
+        },
+        {
+            "id": "scam_029",
+            "type": "medicine_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "ayush.medicine@okaxis"
+                ],
+                "phoneNumbers": [
+                    "7766554433"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "ayurvedic",
+                    "diabetes",
+                    "cure"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "100% cure for diabetes! Ayurvedic medicine no side effects. Call 7766554433. Pay Rs 3000 for 1 month supply to ayush.medicine@okaxis"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Diabetes cure? But my doctor said I have to take medicine lifelong..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Allopathy doesn't cure sir. Our natural remedy cured 10,000 patients."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me show this message to my doctor in next checkup. He will tell if it's good or not."
+                }
+            ]
+        },
+        {
+            "id": "scam_030",
+            "type": "vehicle_fine_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "traffic.challan@ybl"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "echallan-parivahan.tk"
+                ],
+                "keywords": [
+                    "challan",
+                    "traffic",
+                    "fine"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Traffic Challan: Rs 5000 fine pending against vehicle MH12XX1234. Pay immediately at echallan-parivahan.tk or to traffic.challan@ybl"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Challan? But I don't even drive anymore! I sold my scooter 5 years ago!"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Record shows pending sir. Pay now or license will be suspended."
+                },
+                {
+                    "sender": "agent",
+                    "text": "I don't have license anymore... This is some mistake. I will go to RTO and ask."
+                }
+            ]
+        },
+        {
+            "id": "scam_031",
+            "type": "mutual_fund_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "invest.returns@okicici"
+                ],
+                "phoneNumbers": [
+                    "8877665544"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "mutual fund",
+                    "returns",
+                    "sebi"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "SEBI registered advisor: Get 50% returns in mutual funds. Invest Rs 1 lakh today. Call 8877665544. UPI: invest.returns@okicici"
+                },
+                {
+                    "sender": "agent",
+                    "text": "50% returns? That is too good! My bank FD gives only 7%..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Bank FD is waste sir. Smart people invest in our funds. Guaranteed by SEBI."
+                },
+                {
+                    "sender": "agent",
+                    "text": "SEBI guarantee? Let me check with my bank manager. He advises me on investments."
+                }
+            ]
+        },
+        {
+            "id": "scam_032",
+            "type": "insurance_renewal_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "vehicle.insurance@ybl"
+                ],
+                "phoneNumbers": [
+                    "9665544332"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "insurance",
+                    "expired",
+                    "renewal"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Vehicle insurance expired! Renew now at 70% discount. Pay Rs 1500 to vehicle.insurance@ybl. Call 9665544332"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Insurance expired? But I don't have any vehicle now..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Health insurance sir, not vehicle. Your LIC health policy lapsed."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Health insurance... Let me check my papers. I think my son handles this."
+                }
+            ]
+        },
+        {
+            "id": "scam_033",
+            "type": "hinglish_lottery",
+            "expected_intel": {
+                "upiIds": [
+                    "lucky.winner@paytm"
+                ],
+                "phoneNumbers": [
+                    "9876512340"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "crore",
+                    "lottery",
+                    "winner"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Badhai ho! Aapne 1 crore ki lottery jeeti hai! ₹25,000 tax bhejiye lucky.winner@paytm pe. Call: 9876512340"
+                },
+                {
+                    "sender": "agent",
+                    "text": "1 crore? Sach mein? Maine toh koi ticket nahi liya tha!"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Mobile number se lucky draw tha sir. Tax bhejo aur paisa le lo."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Itna paisa... Pehle main apne bade bete ko call karta hoon. Woh advocate hai."
+                }
+            ]
+        },
+        {
+            "id": "scam_034",
+            "type": "bank_merger_scam",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [
+                    "sbi-merge-update.in"
+                ],
+                "keywords": [
+                    "merger",
+                    "account",
+                    "update"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Due to bank merger, update your account details immediately. Visit sbi-merge-update.in or account will be frozen."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Bank merger? I didn't receive any letter from bank about this..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "SMS notification only sir. Update within 24 hours."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me go to bank branch tomorrow and ask. This is confusing."
+                }
+            ]
+        },
+        {
+            "id": "scam_035",
+            "type": "water_bill_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "bwssb.payment@okaxis"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "water",
+                    "bill",
+                    "disconnect"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "BWSSB: Water connection will be disconnected today evening. Pay Rs 2500 pending bill to bwssb.payment@okaxis immediately."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Water bill? But I pay through the BESCOM office every month..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "BWSSB is different sir. This is water board, not electricity."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Oh different? Let me find the bill. My daughter keeps all the bills in the cupboard."
+                }
+            ]
+        },
+        {
+            "id": "scam_036",
+            "type": "property_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "property.deal@ybl"
+                ],
+                "phoneNumbers": [
+                    "9123456780"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "property",
+                    "plot",
+                    "registration"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Prime plot in Whitefield 2400 sqft only Rs 25 lakh! Token amount Rs 50,000 to property.deal@ybl. Call 9123456780"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Whitefield plot? That area is very expensive! How so cheap?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Owner going abroad urgently. That's why distress sale. Few hours only."
+                },
+                {
+                    "sender": "agent",
+                    "text": "I need to see the property first and check papers. Can I come with my lawyer?"
+                }
+            ]
+        },
+        {
+            "id": "scam_037",
+            "type": "nri_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "forex.service@okhdfc"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "nri",
+                    "dollar",
+                    "transfer"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your NRI son sent $5000 but RBI clearance required. Pay Rs 10,000 processing to forex.service@okhdfc"
+                },
+                {
+                    "sender": "agent",
+                    "text": "My son sent money? But he didn't tell me... Let me call him."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Surprise gift sir. Don't call, it will spoil surprise. Pay quickly."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Surprise or not, I will definitely call my son first. He should know about RBI clearance."
+                }
+            ]
+        },
+        {
+            "id": "scam_038",
+            "type": "edu_loan_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "eduscholar@okaxis"
+                ],
+                "phoneNumbers": [
+                    "8765432109"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "scholarship",
+                    "education",
+                    "loan"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "PM scholarship Rs 1.5 lakh approved for your grandchild. Pay Rs 3000 registration to eduscholar@okaxis. Call 8765432109"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Scholarship? But my grandchildren are still in school... Which one is approved?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "For higher education reserve sir. Government scheme for senior citizens' family."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Hmm... I will discuss with my son. He knows about all these government schemes."
+                }
+            ]
+        },
+        {
+            "id": "scam_039",
+            "type": "marriage_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "wedding.venue@ybl"
+                ],
+                "phoneNumbers": [
+                    "7654321098"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "wedding",
+                    "booking",
+                    "hall"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Marriage hall booking: Palace Grounds available Jan 2027. Only Rs 25,000 advance. Pay to wedding.venue@ybl or call 7654321098"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Wedding hall? But nobody in my family is getting married soon..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Book now for future sir. Price will increase later."
+                },
+                {
+                    "sender": "agent",
+                    "text": "No no, first let my children find someone to marry! Then we will think about hall."
+                }
+            ]
+        },
+        {
+            "id": "scam_040",
+            "type": "hinglish_bank_block",
+            "expected_intel": {
+                "upiIds": [
+                    "bank.update@okicici"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "bank",
+                    "block",
+                    "update"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Aapka bank account kal se block ho jayega. Abhi update karo. ₹500 fees bank.update@okicici pe bhejo"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Block? Kyun block hoga? Maine sab documents diye the bank mein..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "New RBI rule hai sir. Sab accounts verify ho rahe hain."
+                },
+                {
+                    "sender": "agent",
+                    "text": "RBI rule? Toh bank se letter aana chahiye na? Maine koi letter nahi dekha."
+                }
+            ]
+        },
+        {
+            "id": "scam_041",
+            "type": "gold_scheme_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "gold.invest@ybl"
+                ],
+                "phoneNumbers": [
+                    "6543210987"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "gold",
+                    "scheme",
+                    "tanishq"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Tanishq gold scheme: 10gm gold at Rs 40,000! Limited offer. Pay to gold.invest@ybl. Call 6543210987"
+                },
+                {
+                    "sender": "agent",
+                    "text": "10gm gold at 40,000? That is less than market rate! Is Tanishq really offering this?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Special festival offer sir. Only for selected customers like you."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Tanishq shop is in mall near my house. Let me go there and ask about this offer."
+                }
+            ]
+        },
+        {
+            "id": "scam_042",
+            "type": "passport_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "passport.urgent@okhdfc"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "passport",
+                    "expired",
+                    "renewal"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Your passport expired. Renew urgently or NRI benefits will stop. Pay Rs 5000 to passport.urgent@okhdfc"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Passport? I haven't traveled abroad in 20 years! I don't think I have passport anymore."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "As per records sir, renewal is mandatory. Government new rule."
+                },
+                {
+                    "sender": "agent",
+                    "text": "No need passport for me at this age. I am happy in India only."
+                }
+            ]
+        },
+        {
+            "id": "scam_043",
+            "type": "railway_refund_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "irctc.refund@ybl"
+                ],
+                "phoneNumbers": [
+                    "5432109876"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "irctc",
+                    "train",
+                    "refund"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "IRCTC: Your train refund Rs 2,500 pending. Pay Rs 200 processing to irctc.refund@ybl. Call 5432109876"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Train refund? I haven't booked any train ticket... I always travel by bus."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Old booking sir from 2023. Cancelled due to train cancellation."
+                },
+                {
+                    "sender": "agent",
+                    "text": "2023? I don't remember... Let me ask my family if anyone booked in my name."
+                }
+            ]
+        },
+        {
+            "id": "scam_044",
+            "type": "mobile_recharge_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "recharge.offer@paytm"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "recharge",
+                    "free",
+                    "data"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Free recharge Rs 599! Unlimited data 1 year. Pay Rs 99 activation to recharge.offer@paytm"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Free recharge? But 599 recharge for only 99? That doesn't make sense..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Promotional offer sir. Jio and Airtel partnership."
+                },
+                {
+                    "sender": "agent",
+                    "text": "My grandson does my recharge. I will ask him to check this offer."
+                }
+            ]
+        },
+        {
+            "id": "scam_045",
+            "type": "dth_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "tatasky.renew@okaxis"
+                ],
+                "phoneNumbers": [
+                    "4321098765"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "tatasky",
+                    "dth",
+                    "disconnect"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Tata Sky: Your DTH will be disconnected tonight. Pay Rs 999 annual pack to tatasky.renew@okaxis. Call 4321098765"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Tata Sky disconnected? But I renewed just 2 months ago!"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Plan expired sir. New regulation requires annual payment."
+                },
+                {
+                    "sender": "agent",
+                    "text": "I pay monthly through my bank... Something is wrong. I will call Tata Sky helpline."
+                }
+            ]
+        },
+        {
+            "id": "scam_046",
+            "type": "cred_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "cred.cashback@ybl"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "cred",
+                    "cashback",
+                    "coins"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "CRED: Redeem 50,000 coins worth Rs 5000! Pay Rs 500 processing to cred.cashback@ybl within 1 hour."
+                },
+                {
+                    "sender": "agent",
+                    "text": "CRED? What is CRED? I don't have any coins..."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "From your credit card payments sir. Points accumulated over years."
+                },
+                {
+                    "sender": "agent",
+                    "text": "I don't use credit card beta. Only debit card for pension withdrawal."
+                }
+            ]
+        },
+        {
+            "id": "scam_047",
+            "type": "phonepe_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "phonepe.reward@paytm"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "phonepe",
+                    "reward",
+                    "scratch"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "PhonePe: You won Rs 10,000 in scratch card! Claim now. Send Rs 100 to phonepe.reward@paytm to verify account."
+                },
+                {
+                    "sender": "agent",
+                    "text": "PhonePe... I have it but my grandson installed it. I don't know how to use properly."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "We will guide you sir. Just send Rs 100 and money will come directly."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Let me call my grandson. He comes every Sunday. He will help me check this."
+                }
+            ]
+        },
+        {
+            "id": "scam_048",
+            "type": "pm_kisan_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "pmkisan.fund@okicici"
+                ],
+                "phoneNumbers": [
+                    "3210987654"
+                ],
+                "phishingLinks": [],
+                "keywords": [
+                    "pm kisan",
+                    "farmer",
+                    "subsidy"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "PM Kisan: Rs 12,000 subsidy approved for you. Pay Rs 1000 verification to pmkisan.fund@okicici. Call 3210987654"
+                },
+                {
+                    "sender": "agent",
+                    "text": "PM Kisan? But I am not a farmer... I was government employee."
+                },
+                {
+                    "sender": "scammer",
+                    "text": "New scheme for all citizens sir. Modi ji's gift."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Modi ji's scheme should come through proper channel na? Not through SMS like this."
+                }
+            ]
+        },
+        {
+            "id": "scam_049",
+            "type": "ayushman_scam",
+            "expected_intel": {
+                "upiIds": [
+                    "ayushman.card@ybl"
+                ],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "ayushman",
+                    "health card",
+                    "free"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Ayushman Bharat: Your free health card Rs 5 lakh coverage ready. Pay Rs 500 to ayushman.card@ybl for delivery."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Free health card? Sounds good but why pay for free card?"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Courier charges and lamination sir. Government doesn't cover these."
+                },
+                {
+                    "sender": "agent",
+                    "text": "Government health camp comes to our area. I will ask them about this card."
+                }
+            ]
+        },
+        {
+            "id": "scam_050",
+            "type": "hinglish_urgent_otp",
+            "expected_intel": {
+                "upiIds": [],
+                "phoneNumbers": [],
+                "phishingLinks": [],
+                "keywords": [
+                    "otp",
+                    "jaldi",
+                    "account"
+                ]
+            },
+            "messages": [
+                {
+                    "sender": "scammer",
+                    "text": "Urgent! Aapke account se ₹50,000 transfer ho raha hai! OTP batao turant cancel karne ke liye!"
+                },
+                {
+                    "sender": "agent",
+                    "text": "₹50,000 transfer? Kisne kiya? Maine toh nahi kiya kuch bhi!"
+                },
+                {
+                    "sender": "scammer",
+                    "text": "Hackers ne kiya sir! Jaldi OTP do warna paisa chala jayega!"
+                },
+                {
+                    "sender": "agent",
+                    "text": "Ruko ruko... Main bank jaata hoon abhi. Woh log hi dekh lenge."
                 }
             ]
         }

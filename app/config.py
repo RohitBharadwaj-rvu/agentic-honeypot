@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     PERSONA_AGE: int = 67
     PERSONA_BACKGROUND: str = "retired government employee"
     PERSONA_LOCATION: str = "Pune"
+    
+    # Callback Configuration (GUVI Evaluation Endpoint)
+    CALLBACK_URL: str = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
+    CALLBACK_TIMEOUT: int = 5  # seconds per competition spec
+    CALLBACK_MAX_RETRIES: int = 3
 
 
 @lru_cache

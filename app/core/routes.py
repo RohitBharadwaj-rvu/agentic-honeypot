@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 
 from app.schemas import WebhookRequest, WebhookResponse, SessionData
 from app.services import get_session_manager, SessionManager
+from app.services import send_final_report, should_send_callback
 from app.core.security import verify_api_key
 from app.agent import run_agent
 
@@ -99,6 +100,10 @@ async def webhook(
             from app.schemas.callback import ExtractedIntelligence
             session.extracted_intelligence = ExtractedIntelligence(**agent_result["extracted_intelligence"])
         
+        # Update termination reason and agent notes
+        session.termination_reason = agent_result.get("termination_reason", session.termination_reason)
+        session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
+        
         reply = agent_result.get("agent_reply", "Hello? Who is this?")
         
     except Exception as e:
@@ -117,7 +122,19 @@ async def webhook(
     await session_manager.save_session(request.sessionId, session)
     logger.info(f"Session saved: {request.sessionId}, scam_level: {session.scam_level}")
     
+    # Check if callback should fire (confirmed scam + intel extracted + not already sent)
+    if should_send_callback(session):
+        logger.info(f"Triggering callback for session {request.sessionId}")
+        callback_success = await send_final_report(session)
+        if callback_success:
+            session.callback_sent = True
+            await session_manager.save_session(request.sessionId, session)
+            logger.info(f"Callback successful for session {request.sessionId}")
+        else:
+            logger.error(f"Callback failed for session {request.sessionId}")
+    
     return WebhookResponse(
         status="success",
         reply=reply,
     )
+
