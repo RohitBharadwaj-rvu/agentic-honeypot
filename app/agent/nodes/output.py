@@ -29,7 +29,14 @@ def output_node(state: AgentState) -> Dict[str, Any]:
     
     # If no reply was generated (safe path), provide a default
     if not agent_reply:
-        agent_reply = "Hello, I think you have the wrong number. Who is this?"
+         import random
+         fallbacks = [
+             "Hello, I think you have the wrong number. Who is this?",
+             "Sorry, I don't know you. Are you from the bank?",
+             "I think you messaged wrong number beta.",
+             "Who is this? I am confused."
+         ]
+         agent_reply = random.choice(fallbacks)
     
     # Determine termination reason
     termination_reason = None

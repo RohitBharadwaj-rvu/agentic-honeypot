@@ -25,12 +25,15 @@ def route_after_detection(state: AgentState) -> Literal["extractor", "output"]:
     - If suspected/confirmed: Continue to extractor_node
     """
     scam_level = state.get("scam_level", "safe")
+    turn_count = state.get("turn_count", 0)
     
-    if scam_level == "safe":
-        logger.info("Routing to OUTPUT (safe message)")
+    # If conversation has started (turn > 1), keep engaging even if "safe"
+    # This prevents the agent from staying silent or giving default responses in the middle of a chat
+    if scam_level == "safe" and turn_count <= 1:
+        logger.info("Routing to OUTPUT (safe message, initial turn)")
         return "output"
     else:
-        logger.info(f"Routing to EXTRACTOR (scam_level={scam_level})")
+        logger.info(f"Routing to EXTRACTOR (scam_level={scam_level}, turn={turn_count})")
         return "extractor"
 
 
