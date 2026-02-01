@@ -22,14 +22,13 @@ class Settings(BaseSettings):
     # API Security
     API_SECRET_KEY: str
     
-    # OpenRouter API
-    OPENROUTER_API_KEY: str = ""
-    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    # NVIDIA API (replaces OpenRouter)
+    NVIDIA_API_KEY: str = ""  # Set via environment variable or .env file
+    NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     
-    # Model Configuration - Using confirmed free tier models
-    MODEL_ROLEPLAY: str = "moonshotai/kimi-k2:free"  # For persona engagement
-    MODEL_REASONING: str = "moonshotai/kimi-k2:free"  # For detection
-    MODEL_FALLBACK: str = "moonshotai/kimi-k2:free"  # Same as fallback
+    # Model Configuration - Using NVIDIA API with Kimi K2
+    MODEL_PRIMARY: str = "moonshotai/kimi-k2-instruct-0905"
+    MODEL_FALLBACK: str = "moonshotai/kimi-k2-instruct-0905"
     
     # Debug Mode
     DEBUG: bool = False

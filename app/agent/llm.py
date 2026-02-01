@@ -1,13 +1,12 @@
 """
 LLM Wrapper Module.
-OpenRouter-compatible HTTP calls with retry logic and fallback handling.
+NVIDIA API calls using OpenAI SDK with retry logic and fallback handling.
 """
 import logging
-import random
 import time
 from typing import List, Dict, Optional
 
-import httpx
+from openai import OpenAI
 
 from app.config import get_settings
 from app.core.rules import SAFE_FALLBACK_RESPONSE, SCRIPT_FALLBACK_RESPONSES
@@ -17,16 +16,15 @@ logger = logging.getLogger(__name__)
 # Track script fallback index for cycling
 _script_fallback_index = 0
 
-
-# Model routing configuration
+# Model configuration - using NVIDIA API with Kimi K2
 MODEL_CONFIG = {
     "persona": {
-        "primary": "tngtech/deepseek-r1t2-chimera:free",
-        "fallback": "arcee-ai/trinity-mini:free",
+        "primary": "moonshotai/kimi-k2-instruct-0905",
+        "fallback": "moonshotai/kimi-k2-instruct-0905",
     },
     "extract": {
-        "primary": "tngtech/deepseek-r1t2-chimera:free",
-        "fallback": "arcee-ai/trinity-mini:free",
+        "primary": "moonshotai/kimi-k2-instruct-0905",
+        "fallback": "moonshotai/kimi-k2-instruct-0905",
     },
 }
 
@@ -35,112 +33,50 @@ MAX_RETRIES = 2
 BACKOFF_SECONDS = [1, 2]  # Exponential backoff: 1s, then 2s
 
 
-
-def _make_request(
-    client: httpx.Client,
-    model: str,
-    messages: List[Dict],
-    api_key: str,
-) -> Optional[str]:
-    """
-    Make a single HTTP request to OpenRouter.
-    
-    Returns response text or None on failure.
-    """
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 300,
-    }
-    
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://honeypot.local",
-        "X-Title": "Agentic Honeypot",
-    }
-    
-    try:
-        response = client.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            json=payload,
-            headers=headers,
-            timeout=60.0,
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            return data["choices"][0]["message"]["content"]
-        
-        return None
-        
-    except Exception:
-        return None
-
-
 def _call_with_retry(
-    client: httpx.Client,
+    client: OpenAI,
     model: str,
     messages: List[Dict],
-    api_key: str,
 ) -> Optional[str]:
     """
-    Call model with retry logic for HTTP 429.
+    Call model with retry logic for errors.
     
     Retries up to MAX_RETRIES times with exponential backoff.
     Returns response text or None if all retries fail.
     """
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://honeypot.local",
-        "X-Title": "Agentic Honeypot",
-    }
-    
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 300,
-    }
-    
     for attempt in range(MAX_RETRIES + 1):
         try:
-            response = client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                json=payload,
-                headers=headers,
-                timeout=60.0,
+            # Use non-streaming for simplicity and reliability
+            completion = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=0.6,
+                top_p=0.9,
+                max_tokens=300,
+                stream=False,
             )
             
-            if response.status_code == 200:
-                data = response.json()
-                return data["choices"][0]["message"]["content"]
+            if completion.choices and completion.choices[0].message:
+                return completion.choices[0].message.content
             
-            if response.status_code == 429:
-                logger.warning(f"Rate limited (429) on model {model}, attempt {attempt + 1}")
-                
-                if attempt < MAX_RETRIES:
-                    sleep_time = BACKOFF_SECONDS[attempt]
-                    time.sleep(sleep_time)
-                    continue
-                else:
-                    return None
-            
-            # Other error codes
-            logger.warning(f"HTTP {response.status_code} from model {model}")
-            return None
-            
-        except httpx.TimeoutException:
-            logger.warning(f"Timeout on model {model}, attempt {attempt + 1}")
-            if attempt < MAX_RETRIES:
-                time.sleep(BACKOFF_SECONDS[attempt])
-                continue
             return None
             
         except Exception as e:
+            error_str = str(e).lower()
+            
+            # Check for rate limit errors
+            if "429" in str(e) or "rate" in error_str:
+                logger.warning(f"Rate limited on model {model}, attempt {attempt + 1}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(BACKOFF_SECONDS[attempt])
+                    continue
+                return None
+            
+            # Other errors
             logger.warning(f"Error calling model {model}: {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(BACKOFF_SECONDS[attempt])
+                continue
             return None
     
     return None
@@ -161,16 +97,16 @@ def call_llm(task: str, messages: List[Dict]) -> str:
         - persona: primary → fallback → script fallback (cycling)
         - extract: primary → fallback → JSON fallback
     
-    Handles HTTP 429 with retry + exponential backoff.
+    Handles errors with retry + exponential backoff.
     Returns script fallback for persona tasks, safe fallback for extract.
     """
     global _script_fallback_index
     
     settings = get_settings()
-    api_key = settings.OPENROUTER_API_KEY
+    api_key = settings.NVIDIA_API_KEY
     
     if not api_key:
-        logger.error("OPENROUTER_API_KEY not configured")
+        logger.error("NVIDIA_API_KEY not configured")
         return SAFE_FALLBACK_RESPONSE
     
     # Get model configuration for task
@@ -182,20 +118,25 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     primary_model = config["primary"]
     fallback_model = config["fallback"]
     
-    with httpx.Client() as client:
-        # Try primary model
-        result = _call_with_retry(client, primary_model, messages, api_key)
+    # Create OpenAI client with NVIDIA base URL
+    client = OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=api_key,
+    )
+    
+    # Try primary model
+    result = _call_with_retry(client, primary_model, messages)
+    
+    if result:
+        return result.strip()
+    
+    # Try fallback model if different
+    if fallback_model and fallback_model != primary_model:
+        logger.info(f"Switching to fallback model: {fallback_model}")
+        result = _call_with_retry(client, fallback_model, messages)
         
         if result:
             return result.strip()
-        
-        # Try fallback model if available
-        if fallback_model:
-            logger.info(f"Switching to fallback model: {fallback_model}")
-            result = _call_with_retry(client, fallback_model, messages, api_key)
-            
-            if result:
-                return result.strip()
     
     # All attempts failed - use script fallback for persona tasks
     logger.error(f"All LLM attempts failed for task: {task}")
