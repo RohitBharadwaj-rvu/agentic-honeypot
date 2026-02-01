@@ -5,12 +5,10 @@
 ## 🚨 High Priority (Overhaul)
 - [ ] **[Infra]** Implement `LocalFileStore` for persistent fallback (SQLite/JSON).
 - [ ] **[Config]** Externalize Rules: Move regex/keywords to `app/core/rules.py`.
-- [ ] **[Test]** Implement `MockLLMClient` for deterministic testing.
-- [ ] **[AI]** Implement "Script Fallback" for LLM rate limit exhaustion.
 
 ## 🚧 Medium Priority (Remaining Features)
 - [ ] **[Logic]** Implement "Anti-Suspicion" delays/typos.
-- [ ] **[Test]** Write **Evaluation Parity Test** (Full Lifecycle Simulation).
+- [ ] **[Test]** Expand test coverage to 100% passing.
 
 ## ✅ Completed
 - [x] **[Infra]** Setup FastAPI + Upstash Redis + Pydantic.
@@ -22,3 +20,9 @@
 - [x] **[API]** Implement Mandatory Callback (`POST` to Guvi).
 - [x] **[Data]** Expand Golden Dataset (20 -> 50) with diverse scam types.
 - [x] **[Logic]** Implement Intel-Based Termination Logic (extracted_success).
+- [x] **[Test]** Implement `MockLLMClient` for deterministic testing.
+- [x] **[Test]** Create pytest infrastructure (conftest.py, pytest.ini).
+- [x] **[Test]** Implement regression tests - callback fires exactly once.
+- [x] **[Test]** Implement load tests - session size & concurrency.
+- [x] **[Test]** Implement golden dataset validation (20 transcripts).
+
