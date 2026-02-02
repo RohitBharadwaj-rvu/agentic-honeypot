@@ -3,9 +3,18 @@ import json
 import time
 from datetime import datetime
 
+from app.config import get_settings
+
+try:
+    settings = get_settings()
+    api_key = settings.API_SECRET_KEY
+except Exception as e:
+    print(f"Error loading settings: {e}")
+    api_key = "local-dev-secret-key"
+
 url = "http://localhost:8000/webhook"
 headers = {
-    "X-API-KEY": "local-dev-secret-key",
+    "X-API-KEY": api_key,
     "Content-Type": "application/json"
 }
 

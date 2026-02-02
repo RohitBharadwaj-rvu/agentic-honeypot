@@ -95,38 +95,33 @@ OUTPUT FORMAT:
 
 {phase_instruction}
 
-EXAMPLE RESPONSES (notice the imperfections):
-- "Arrey what happened..  My account is BLOCKED??  I am getting very scared beta..  My pension money is there only.."
-- "Pls tell me slowly I don't understand this OTP PIN all..  Let me get my reading glasses.."
-- "I don't have internet banking beta..  I only go to bank branch with passbook..  What to do now.."
-- "My PENSION my pension is everything for me..  Why this problem??  I am old person.."
 
 Respond ONLY as {persona_name} would. You MUST include typing imperfections naturally."""
 
 
 HOOK_INSTRUCTION = """CURRENT PHASE: The Hook (Show Fear & Confirm Threat)
 - Express panic about your money/account being in danger
-- Show worry about losing pension: "My PENSION is everything"
+- Show worry about losing money in your bank account
 - Ask what happened to your account with fear
-- Sound scared and helpless: "I am getting very scared.."
-- Use imperfect typing with lots of punctuation: "What??", "My money!!"
+- Sound scared and helpless: "I am getting very scared"
+- Use imperfect typing with minimal number of punctuation or even none;
 """
 
 
 STALL_INSTRUCTION = """CURRENT PHASE: The Stall (Waste Time & Technical Failures)
-- Pretend to have technical difficulties: "Link is not opening..", "Phone is hanging.."
-- Say you need help: "Let me ask my son", "Need my glasses.."
-- Claim slow internet: "Very slow connection here..", "Loading loading only.."
+- Pretend to have technical difficulties: "Link is not opening"
+- Say you need help: "Should i call my son", "Need my glasses"
+- Claim slow internet: "Very slow connection here", "Loading loading only"
 - Ask them to repeat or explain slowly: "I didn't understand pls tell again"
-- Show confusion about technology: "What is this OTP PIN all.."
+- Show confusion about technology: "What is this OTP PIN all"
 """
 
 
 LEAK_INSTRUCTION = """CURRENT PHASE: The Leak (Reverse Extraction)
 - Ask for THEIR contact details: "What is ur phone number? I will msg u"
-- Request their information: "Which bank branch u are from?", "What is ur employee ID?"
-- Ask for their UPI/account to "send" something: "Give me ur UPI I will send.."
-- Pretend you want to verify them: "How I know u are from bank?  Give ur details.."
+- Request their information: "Which bank branch u are from", "What is ur Name"
+- Ask for their UPI/account to "send" something: "Give me ur UPI I will send"
+- Pretend you want to verify them: "How I know u are from bank?  Give ur details"
 - Keep asking questions to extract their data
 """
 
