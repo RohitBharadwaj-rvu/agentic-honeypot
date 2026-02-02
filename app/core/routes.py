@@ -74,8 +74,22 @@ async def webhook(
         "timestamp": request.message.timestamp.isoformat(),
     })
     
-    # Run LangGraph agent
+        # Run LangGraph agent
     try:
+        # Prepare persona details from session
+        persona_details = {
+            "persona_name": session.persona_name,
+            "persona_age": session.persona_age,
+            "persona_location": session.persona_location,
+            "persona_background": session.persona_background,
+            "persona_occupation": session.persona_occupation,
+            "persona_trait": session.persona_trait,
+            "fake_phone": session.fake_phone,
+            "fake_upi": session.fake_upi,
+            "fake_bank_account": session.fake_bank_account,
+            "fake_ifsc": session.fake_ifsc,
+        }
+        
         agent_result = await run_agent(
             session_id=request.sessionId,
             message=request.message.text,
@@ -87,6 +101,7 @@ async def webhook(
             },
             turn_count=session.turn_count,
             existing_intel=session.extracted_intelligence.model_dump() if hasattr(session.extracted_intelligence, 'model_dump') else dict(session.extracted_intelligence),
+            persona_details=persona_details,
         )
         
         # Update session from agent result
@@ -94,6 +109,18 @@ async def webhook(
         session.scam_confidence = agent_result.get("scam_confidence", session.scam_confidence)
         session.is_scam_confirmed = agent_result.get("is_scam_confirmed", session.is_scam_confirmed)
         session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
+        
+        # Update persona details (in case they were initialized in this turn)
+        session.persona_name = agent_result.get("persona_name", session.persona_name)
+        session.persona_age = agent_result.get("persona_age", session.persona_age)
+        session.persona_location = agent_result.get("persona_location", session.persona_location)
+        session.persona_background = agent_result.get("persona_background", session.persona_background)
+        session.persona_occupation = agent_result.get("persona_occupation", session.persona_occupation)
+        session.persona_trait = agent_result.get("persona_trait", session.persona_trait)
+        session.fake_phone = agent_result.get("fake_phone", session.fake_phone)
+        session.fake_upi = agent_result.get("fake_upi", session.fake_upi)
+        session.fake_bank_account = agent_result.get("fake_bank_account", session.fake_bank_account)
+        session.fake_ifsc = agent_result.get("fake_ifsc", session.fake_ifsc)
         
         # Update extracted intelligence
         if "extracted_intelligence" in agent_result:

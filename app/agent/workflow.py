@@ -108,26 +108,52 @@ async def run_agent(
     metadata: Dict[str, str],
     turn_count: int = 1,
     existing_intel: Dict = None,
+    persona_details: Dict = None,  # Existing persona if any
 ) -> Dict[str, Any]:
     """
     Run the agent workflow for a single turn.
-    
-    Args:
-        session_id: Unique session identifier
-        message: Current user message
-        messages_history: Previous messages in conversation
-        metadata: Channel, language, locale info
-        turn_count: Current turn number
-        existing_intel: Previously extracted intelligence
-    
-    Returns:
-        Updated agent state with reply
     """
     logger.info(f"Running agent for session {session_id}, turn {turn_count}")
     
     # Get settings for persona configuration
     settings = get_settings()
     
+    # Initialize persona and fake details
+    if not persona_details or not persona_details.get("persona_name"):
+        import random
+        from app.agent.utils.generators import (
+            generate_phone_number,
+            generate_upi_id,
+            generate_bank_account,
+            generate_ifsc
+        )
+        
+        # Pick a random template
+        template = random.choice(settings.PERSONA_TEMPLATES)
+        p_name = template["name"]
+        p_age = template["age"]
+        p_location = template["location"]
+        p_background = template["background"]
+        p_occupation = template["occupation"]
+        p_trait = template["trait"]
+        
+        # Generate fake data
+        f_phone = generate_phone_number()
+        f_upi = generate_upi_id(p_name)
+        f_bank = generate_bank_account()
+        f_ifsc = generate_ifsc()
+    else:
+        p_name = persona_details.get("persona_name")
+        p_age = persona_details.get("persona_age")
+        p_location = persona_details.get("persona_location")
+        p_background = persona_details.get("persona_background")
+        p_occupation = persona_details.get("persona_occupation")
+        p_trait = persona_details.get("persona_trait")
+        f_phone = persona_details.get("fake_phone")
+        f_upi = persona_details.get("fake_upi")
+        f_bank = persona_details.get("fake_bank_account")
+        f_ifsc = persona_details.get("fake_ifsc")
+
     # Initialize state
     initial_state: AgentState = {
         "session_id": session_id,
@@ -147,7 +173,16 @@ async def run_agent(
         "termination_reason": None,
         "agent_notes": "",
         "agent_reply": "",
-        "persona_name": settings.PERSONA_NAME,
+        "persona_name": p_name,
+        "persona_age": p_age,
+        "persona_location": p_location,
+        "persona_background": p_background,
+        "persona_occupation": p_occupation,
+        "persona_trait": p_trait,
+        "fake_phone": f_phone,
+        "fake_upi": f_upi,
+        "fake_bank_account": f_bank,
+        "fake_ifsc": f_ifsc,
         "channel": metadata.get("channel", "SMS"),
         "language": metadata.get("language", "en"),
         "locale": metadata.get("locale", "IN"),

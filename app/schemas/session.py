@@ -42,7 +42,18 @@ class SessionData(BaseModel):
     agent_notes: str = Field(default="", description="Agent observations")
     
     # Persona tracking for consistency
-    persona_name: str = Field(default="Ramesh", description="Current persona's name")
+    persona_name: str = Field(default="", description="Current persona's name")
+    persona_age: int = Field(default=0, description="Current persona's age")
+    persona_location: str = Field(default="", description="Current persona's location")
+    persona_background: str = Field(default="", description="Current persona's background")
+    persona_occupation: str = Field(default="", description="Current persona's occupation")
+    persona_trait: str = Field(default="", description="Current persona's trait")
+    
+    # Fake details generated for this session
+    fake_phone: str = Field(default="", description="Fake 10-digit Indian phone number")
+    fake_upi: str = Field(default="", description="Fake UPI ID")
+    fake_bank_account: str = Field(default="", description="Fake bank account number")
+    fake_ifsc: str = Field(default="", description="Fake IFSC code")
     
     # Callback tracking
     callback_sent: bool = Field(default=False, description="Whether final callback was sent")

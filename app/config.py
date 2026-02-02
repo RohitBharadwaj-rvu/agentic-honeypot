@@ -13,6 +13,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",
     )
     
     # Upstash Redis
@@ -45,6 +46,42 @@ class Settings(BaseSettings):
     PERSONA_AGE: int = 67
     PERSONA_BACKGROUND: str = "retired government employee"
     PERSONA_LOCATION: str = "Pune"
+    
+    # Predefined Persona Templates
+    PERSONA_TEMPLATES: list = [
+        {
+            "name": "Ramesh Kumar",
+            "age": 67,
+            "background": "regular savings account holder at SBI",
+            "location": "Pune",
+            "occupation": "Ex-Government Clerk",
+            "trait": "anxious and very polite"
+        },
+        {
+            "name": "Sunita Deshpande",
+            "age": 62,
+            "background": " housewife with some FD in HDFC",
+            "location": "Mumbai",
+            "occupation": "Retired Teacher",
+            "trait": "gentle but slightly confused about tech"
+        },
+        {
+            "name": "Prof. S. R. Iyer",
+            "age": 71,
+            "background": "retired physics professor with small investments",
+            "location": "Chennai",
+            "occupation": "Academician",
+            "trait": "meticulous, asks many questions, slightly stubborn"
+        },
+        {
+            "name": "Harprit Singh",
+            "age": 65,
+            "background": "retired local grocery shop owner",
+            "location": "Amritsar",
+            "occupation": "Shop Owner",
+            "trait": "trusting but cautious about his savings"
+        }
+    ]
     
     # Callback Configuration (GUVI Evaluation Endpoint)
     CALLBACK_URL: str = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"

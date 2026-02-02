@@ -45,6 +45,17 @@ class AgentState(TypedDict):
     
     # Persona Tracking
     persona_name: str
+    persona_age: int
+    persona_location: str
+    persona_background: str
+    persona_occupation: str
+    persona_trait: str
+    
+    # Fake details for baiting
+    fake_phone: str
+    fake_upi: str
+    fake_bank_account: str
+    fake_ifsc: str
     
     # Metadata
     channel: str
