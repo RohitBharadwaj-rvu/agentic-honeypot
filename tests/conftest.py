@@ -66,10 +66,14 @@ def mock_send_callback(mock_callback_tracker):
     """
     async def _mock_send(session):
         mock_callback_tracker["count"] += 1
+        # Serialize extracted_intelligence to dict if it's a Pydantic model
+        intel = session.extracted_intelligence
+        if hasattr(intel, 'model_dump'):
+            intel = intel.model_dump()
         mock_callback_tracker["payloads"].append({
             "sessionId": session.session_id,
             "scamDetected": session.is_scam_confirmed,
-            "extractedIntelligence": session.extracted_intelligence,
+            "extractedIntelligence": intel,
             "totalMessagesExchanged": len(session.messages),
             "agentNotes": session.agent_notes or "",
         })

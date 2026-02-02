@@ -185,15 +185,17 @@ class TestAgentScamDetection:
         assert has_intel, f"Expected intelligence extraction, got: {intel}"
 
     @pytest.mark.asyncio
-    async def test_max_turns_termination(self, sample_metadata):
-        """Test that conversation terminates at max turns."""
+    async def test_max_turns_does_not_terminate(self, sample_metadata):
+        """Test that high turn count does NOT cause termination (intel-based design)."""
         result = await run_agent(
             session_id="max-turns-001",
             message="Hello again",
             messages_history=[],
             metadata=sample_metadata,
-            turn_count=9,  # Will become 10 after increment
+            turn_count=9,  # High turn count
         )
         
-        # Should have termination reason set
-        assert result.get("termination_reason") == "max_turns"
+        # Intel-based design: no max_turns termination
+        # Termination only happens on extracted_success
+        assert result.get("termination_reason") is None, \
+            "Expected no termination (intel-based design, no turn limit)"
