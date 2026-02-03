@@ -12,7 +12,7 @@ def test_sync():
             "text": "Hello, this is from the bank. We need your UPI ID.",
             "timestamp": "2024-01-01T12:00:00Z"
         },
-        "metadata": {"channel": "Testing"}
+        "metadata": {"channel": "SMS"}
     }
     headers = {"X-API-KEY": API_KEY, "Content-Type": "application/json"}
     print(f"Sending request to {URL}...")
