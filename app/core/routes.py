@@ -3,7 +3,10 @@ API Routes for the Honey-Pot system.
 Defines webhook and health check endpoints.
 """
 import logging
-from fastapi import APIRouter, Depends, Request
+import json
+import time
+from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi.responses import JSONResponse
 
 from app.schemas import WebhookRequest, WebhookResponse, SessionData, MetadataInput
 from app.services import get_session_manager, SessionManager
@@ -14,7 +17,7 @@ from app.agent import run_agent
 logger = logging.getLogger(__name__)
 
 # VERSION: Used to verify build status on Hugging Face
-API_VERSION = "0.2.2-hyper-flexible"
+API_VERSION = "0.2.3-ultimate-cleanup"
 
 router = APIRouter()
 
@@ -166,6 +169,7 @@ async def webhook(
         reply = "Sorry, I am a bit confused today. Can you repeat?"
     
     # Add agent reply to messages
+    from datetime import datetime
     session.messages.append({
         "sender": "agent",
         "text": reply,
@@ -180,15 +184,18 @@ async def webhook(
     if should_send_callback(session):
          await send_final_report(session)
 
-    from fastapi.responses import JSONResponse
+    # ULTIMATE CLEANUP: Remove newlines and extra spaces from reply to avoid JSON parsing issues
+    clean_reply = " ".join(reply.split())
+    
     content = {
         "status": "success",
-        "reply": reply,
+        "reply": clean_reply,
     }
-    logger.info(f"[{API_VERSION}] Sending response for {session_id}: {content}")
+    logger.info(f"[{API_VERSION}] Sending ULTIMATE response for {session_id}: {content}")
     return JSONResponse(
         status_code=200,
-        content=content
+        content=content,
+        headers={"Content-Type": "application/json; charset=utf-8"}
     )
 
 
