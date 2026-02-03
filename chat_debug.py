@@ -38,7 +38,7 @@ while True:
             "timestamp": datetime.now().isoformat()
         },
         "metadata": {
-            "channel": "Chat"
+            "channel": "Interactive"
         }
     }
 
