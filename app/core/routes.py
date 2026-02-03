@@ -32,6 +32,7 @@ async def health_check():
     }
 
 
+# DEBUG ONLY — REMOVE BEFORE FINAL SUBMISSION
 @router.api_route(
     "/honeypot/test",
     methods=["GET", "POST"],
@@ -39,13 +40,16 @@ async def health_check():
 )
 async def honeypot_test(request: Request):
     """
-    Infrastructure test endpoint for hackathon reachability checks.
-    Accepts any method, ignores request body, and does not invoke the agent.
+    Debug endpoint to echo raw request details for the tester.
     """
+    raw_bytes = await request.body()
+    raw_body = raw_bytes.decode("utf-8", errors="ignore") if raw_bytes else ""
+    headers = dict(request.headers)
     return {
-        "status": "ok",
-        "service": "agentic-honeypot",
-        "message": "endpoint reachable",
+        "method": request.method,
+        "headers": headers,
+        "raw_body": raw_body,
+        "content_length": request.headers.get("content-length"),
     }
 
 
