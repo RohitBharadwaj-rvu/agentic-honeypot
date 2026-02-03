@@ -45,6 +45,19 @@ async def honeypot_test(api_key: str = Depends(verify_api_key)):
     }
 
 
+@router.post("/honeypot/test")
+async def honeypot_test_post(api_key: str = Depends(verify_api_key)):
+    """
+    Allow POST for the tester if it sends the wrong method.
+    Returns the same response as GET.
+    """
+    return {
+        "status": "ok",
+        "service": "agentic-honeypot",
+        "message": "endpoint reachable",
+    }
+
+
 @router.post("/webhook", response_model=WebhookResponse, response_model_exclude_none=True)
 async def webhook(
     request: WebhookRequest,
