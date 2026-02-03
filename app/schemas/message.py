@@ -15,7 +15,10 @@ class MessageInput(BaseModel):
         ..., description="Who sent the message (e.g., 'scammer', 'user')"
     )
     text: str = Field(..., description="The message content")
-    timestamp: datetime = Field(..., description="When the message was sent")
+    timestamp: datetime = Field(
+        default_factory=datetime.now, 
+        description="When the message was sent"
+    )
 
 
 class MetadataInput(BaseModel):

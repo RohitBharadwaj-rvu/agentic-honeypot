@@ -68,10 +68,15 @@ app.include_router(router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
-    """Return HTTP 400 for malformed or missing required fields."""
+    """Return informative error for debugging validation issues."""
+    logger.error(f"Validation error: {exc.errors()}")
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={"detail": "Invalid request body."},
+        content={
+            "detail": "Invalid request body.",
+            "errors": exc.errors(),
+            "body": getattr(exc, "body", None)
+        },
     )
 
 
