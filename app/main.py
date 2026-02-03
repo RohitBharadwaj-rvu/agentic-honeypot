@@ -71,13 +71,14 @@ async def validation_exception_handler(request, exc: RequestValidationError):
     """Return error code and the actual error trace for debugging."""
     error_msg = str(exc.errors())
     logger.error(f"Validation error: {error_msg}")
+    
+    # Put the full error in 'detail' so it shows up in the GUVI tester's red box
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={
-            "detail": "INVALID_REQUEST_BODY",
+            "detail": f"INVALID_REQUEST_BODY: {error_msg}",
             "status": "error",
-            "message": f"Validation Details: {error_msg}",
-            "hint": "Ensure your JSON structure matches the problem statement."
+            "errors": exc.errors()
         },
     )
 
