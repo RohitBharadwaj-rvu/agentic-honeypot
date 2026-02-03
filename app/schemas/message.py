@@ -52,26 +52,31 @@ class MetadataInput(BaseModel):
 class WebhookRequest(BaseModel):
     """
     Incoming webhook payload from the external system.
+    Extremely flexible to handle spec deviations.
     """
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
     sessionId: Any = Field(
-        ..., 
-        validation_alias=AliasChoices("sessionId", "session_id", "id"), 
+        default="session-missing",
+        validation_alias=AliasChoices("sessionId", "session_id", "id", "sessionID"), 
         description="Unique session identifier"
     )
-    message: MessageInput = Field(
-        default_factory=MessageInput, 
+    message: Any = Field(
+        default=None, 
         validation_alias=AliasChoices("message", "msg"),
-        description="The current incoming message"
+        description="The current incoming message (nested or flat)"
     )
-    conversationHistory: List[MessageInput] = Field(
+    # Extra fields for flat structure support
+    text: Optional[str] = None
+    sender: Optional[str] = None
+    
+    conversationHistory: List[Any] = Field(
         default_factory=list,
-        validation_alias=AliasChoices("conversationHistory", "conversation_history", "history"),
+        validation_alias=AliasChoices("conversationHistory", "conversation_history", "history", "messages"),
         description="Previous messages in this conversation"
     )
-    metadata: Optional[MetadataInput] = Field(
-        default_factory=MetadataInput,
+    metadata: Any = Field(
+        default_none=True,
         validation_alias=AliasChoices("metadata", "meta"),
         description="Channel and locale information"
     )

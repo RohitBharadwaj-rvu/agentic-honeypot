@@ -68,14 +68,16 @@ app.include_router(router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
-    """Return simple error for the tester and detailed logs for us."""
-    logger.error(f"Validation error: {exc.errors()}")
+    """Return error code and the actual error trace for debugging."""
+    error_msg = str(exc.errors())
+    logger.error(f"Validation error: {error_msg}")
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={
             "detail": "INVALID_REQUEST_BODY",
             "status": "error",
-            "message": "Please check the request payload structure."
+            "message": f"Validation Details: {error_msg}",
+            "hint": "Ensure your JSON structure matches the problem statement."
         },
     )
 
