@@ -5,7 +5,7 @@ Defines webhook and health check endpoints.
 import logging
 from fastapi import APIRouter, Depends
 
-from app.schemas import WebhookRequest, WebhookResponse, SessionData
+from app.schemas import WebhookRequest, WebhookResponse, SessionData, MetadataInput
 from app.services import get_session_manager, SessionManager
 from app.services import send_final_report, should_send_callback
 from app.core.security import verify_api_key
@@ -116,14 +116,15 @@ async def webhook(
             "fake_ifsc": session.fake_ifsc,
         }
         
+        metadata_obj = request.metadata or MetadataInput()
         agent_result = await run_agent(
             session_id=request.sessionId,
             message=request.message.text,
             messages_history=session.messages,
             metadata={
-                "channel": request.metadata.channel,
-                "language": request.metadata.language,
-                "locale": request.metadata.locale,
+                "channel": metadata_obj.channel,
+                "language": metadata_obj.language,
+                "locale": metadata_obj.locale,
             },
             turn_count=session.turn_count,
             existing_intel=session.extracted_intelligence.model_dump() if hasattr(session.extracted_intelligence, 'model_dump') else dict(session.extracted_intelligence),

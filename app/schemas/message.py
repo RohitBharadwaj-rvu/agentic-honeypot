@@ -16,7 +16,7 @@ class MessageInput(BaseModel):
 
 class MetadataInput(BaseModel):
     """Request metadata for context."""
-    channel: str = Field(..., description="Communication channel (SMS, WhatsApp, etc.)")
+    channel: str = Field(default="SMS", description="Communication channel (SMS, WhatsApp, etc.)")
     language: str = Field(default="en", description="Language code")
     locale: str = Field(default="IN", description="Locale/region code")
 
@@ -32,7 +32,10 @@ class WebhookRequest(BaseModel):
         default_factory=list,
         description="Previous messages in this conversation"
     )
-    metadata: MetadataInput = Field(..., description="Channel and locale information")
+    metadata: Optional[MetadataInput] = Field(
+        default_factory=MetadataInput,
+        description="Channel and locale information"
+    )
 
 
 class WebhookResponse(BaseModel):
