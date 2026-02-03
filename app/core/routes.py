@@ -58,6 +58,7 @@ async def honeypot_test(request: Request):
 
 
 @router.post("/webhook")
+@router.post("/webhook/")
 async def webhook(
     raw_request: Request,
     api_key: str = Depends(verify_api_key),
@@ -70,23 +71,25 @@ async def webhook(
         data = await raw_request.json()
     except Exception as e:
         logger.error(f"Failed to parse JSON body: {e}")
-        return WebhookResponse(status="error", reply="Invalid JSON payload")
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=400, content={"status": "error", "reply": "Invalid JSON payload"})
 
-    logger.info(f"[{API_VERSION}] Webhook received for session: {data.get('sessionId', data.get('session_id', 'unknown'))}")
-    
-    # Manually extract fields from raw dict
-    session_id = str(data.get("sessionId", data.get("session_id", data.get("id", "unknown"))))
+    session_id = str(data.get("sessionId", data.get("session_id", data.get("id", "session-unknown"))))
+    logger.info(f"[{API_VERSION}] Webhook received for session: {session_id}")
     
     # Extract message details
     message_data = data.get("message", data.get("msg", {}))
     if not isinstance(message_data, dict):
-        # Fallback if it's sent as a flat structure
         msg_text = data.get("text", "")
         msg_sender = data.get("sender", "scammer")
     else:
         msg_text = message_data.get("text", data.get("text", ""))
         msg_sender = message_data.get("sender", data.get("sender", "scammer"))
     
+    if not msg_text and not data.get("text"):
+        # If still empty, maybe it's the very first hit with nothing
+        msg_text = "Hello"
+
     # Extra check for metadata
     metadata_obj = data.get("metadata", data.get("meta", {}))
     if not isinstance(metadata_obj, dict):
@@ -96,7 +99,6 @@ async def webhook(
     session = await session_manager.get_session(session_id)
     
     if session is None:
-        # New session
         session = SessionData(
             session_id=session_id,
             current_user_message=msg_text,
@@ -105,12 +107,10 @@ async def webhook(
         )
         logger.info(f"Created new session: {session_id}")
     else:
-        # Update existing session
         session.turn_count += 1
         logger.info(f"Updated session: {session_id}, turn: {session.turn_count}")
     
     # Add incoming message to history
-    # Use a default timestamp if missing or malformed
     from datetime import datetime
     session.messages.append({
         "sender": msg_sender,
@@ -120,7 +120,6 @@ async def webhook(
     
     # Run LangGraph agent
     try:
-        # Prepare persona details from session
         persona_details = {
             "persona_name": session.persona_name,
             "persona_age": session.persona_age,
@@ -152,36 +151,19 @@ async def webhook(
         
         # Update session from agent result
         session.scam_level = agent_result.get("scam_level", session.scam_level)
-        session.scam_confidence = agent_result.get("scam_confidence", session.scam_confidence)
         session.is_scam_confirmed = agent_result.get("is_scam_confirmed", session.is_scam_confirmed)
-        session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
-        
-        # Update persona details (in case they were initialized in this turn)
-        session.persona_name = agent_result.get("persona_name", session.persona_name)
-        session.persona_age = agent_result.get("persona_age", session.persona_age)
-        session.persona_location = agent_result.get("persona_location", session.persona_location)
-        session.persona_background = agent_result.get("persona_background", session.persona_background)
-        session.persona_occupation = agent_result.get("persona_occupation", session.persona_occupation)
-        session.persona_trait = agent_result.get("persona_trait", session.persona_trait)
-        session.fake_phone = agent_result.get("fake_phone", session.fake_phone)
-        session.fake_upi = agent_result.get("fake_upi", session.fake_upi)
-        session.fake_bank_account = agent_result.get("fake_bank_account", session.fake_bank_account)
-        session.fake_ifsc = agent_result.get("fake_ifsc", session.fake_ifsc)
         
         # Update extracted intelligence
         if "extracted_intelligence" in agent_result:
             from app.schemas.callback import ExtractedIntelligence
             session.extracted_intelligence = ExtractedIntelligence(**agent_result["extracted_intelligence"])
         
-        # Update termination reason and agent notes
         session.termination_reason = agent_result.get("termination_reason", session.termination_reason)
-        session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
-        
-        reply = agent_result.get("agent_reply", "Hello? Who is this?")
+        reply = agent_result.get("agent_reply", "Hello? How can I help you?")
         
     except Exception as e:
-        logger.error(f"Agent error: {e}")
-        reply = "Sorry, I didn't understand. Can you please repeat?"
+        logger.error(f"Agent error in webhook: {e}")
+        reply = "Sorry, I am a bit confused today. Can you repeat?"
     
     # Add agent reply to messages
     session.messages.append({
@@ -193,18 +175,10 @@ async def webhook(
     
     # Save session
     await session_manager.save_session(session_id, session)
-    logger.info(f"Session saved: {session_id}, scam_level: {session.scam_level}")
     
-    # Check if callback should fire (confirmed scam + intel extracted + not already sent)
+    # Trigger callback if needed
     if should_send_callback(session):
-        logger.info(f"Triggering callback for session {session_id}")
-        callback_success = await send_final_report(session)
-        if callback_success:
-            session.callback_sent = True
-            await session_manager.save_session(session_id, session)
-            logger.info(f"Callback successful for session {session_id}")
-        else:
-            logger.error(f"Callback failed for session {session_id}")
+        await send_final_report(session)
     
     from fastapi.responses import JSONResponse
     return JSONResponse(
@@ -212,11 +186,13 @@ async def webhook(
         content={
             "status": "success",
             "reply": reply,
+            "sessionId": session_id  # Echo back just in case the platform expects it
         }
     )
 
 
 @router.post("/api/honeypot")
+@router.post("/api/honeypot/")
 async def api_honeypot(
     raw_request: Request,
     api_key: str = Depends(verify_api_key),
@@ -224,7 +200,6 @@ async def api_honeypot(
 ):
     """
     Hackathon evaluation endpoint.
-    Hyper-flexible bypass version.
     """
     return await webhook(raw_request, api_key=api_key, session_manager=session_manager)
 

@@ -7,8 +7,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from fastapi import status
+from fastapi import status, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+import time
+import json
 
 from app.config import get_settings
 from app.core.routes import router
@@ -53,10 +56,42 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Add diagnostic middleware to log all traffic
+@app.middleware("http")
+async def diagnostic_logging_middleware(request: Request, call_next):
+    start_time = time.time()
+    
+    # Log request basics
+    method = request.method
+    path = request.url.path
+    query = str(request.query_params)
+    
+    # Try to peek into body if it's small
+    body_peek = "not-json"
+    if "application/json" in request.headers.get("content-type", ""):
+        try:
+            body_bytes = await request.body()
+            # We must replace the stream so the route can read it again
+            async def receive():
+                return {"type": "http.request", "body": body_bytes}
+            request._receive = receive
+            body_peek = body_bytes.decode()[:500] 
+        except:
+            body_peek = "peek-failed"
+
+    response: Response = await call_next(request)
+    duration = time.time() - start_time
+    
+    logger.info(
+        f"DIAGNOSTIC: {method} {path} | Status: {response.status_code} | "
+        f"Duration: {duration:.3f}s | Body: {body_peek}"
+    )
+    return response
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -68,17 +103,15 @@ app.include_router(router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
-    """Return error code and the actual error trace for debugging."""
+    """Verbose validation error for GUVI debugging."""
     error_msg = str(exc.errors())
-    logger.error(f"Validation error: {error_msg}")
-    
-    # Put the full error in 'detail' so it shows up in the GUVI tester's red box
+    logger.error(f"RAW_VALIDATION_ERROR: {error_msg}")
     return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
+        status_code=400,
         content={
-            "detail": f"INVALID_REQUEST_BODY: {error_msg}",
             "status": "error",
-            "errors": exc.errors()
+            "detail": "INVALID_REQUEST_BODY",
+            "debug_info": exc.errors()
         },
     )
 
@@ -88,7 +121,7 @@ async def root():
     """Root endpoint with API info."""
     return {
         "service": "Agentic Honey-Pot API",
-        "version": "0.1.0",
-        "docs": "/docs",
-        "health": "/health",
+        "version": "0.2.2",
+        "status": "active",
+        "endpoints": ["/webhook", "/api/honeypot", "/health"],
     }
