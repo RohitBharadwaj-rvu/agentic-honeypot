@@ -30,7 +30,8 @@ async def health_check():
     return {
         "status": "ok",
         "service": "honeypot-api",
-        "version": "0.2.0",
+        "version": "0.2.2",
+        "api_version": API_VERSION,
         "redis_fallback_mode": session_manager.is_using_fallback(),
     }
 
