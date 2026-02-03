@@ -57,12 +57,12 @@ async def honeypot_test(request: Request):
     }
 
 
-@router.post("/webhook", response_model=WebhookResponse, response_model_exclude_none=True)
+@router.post("/webhook")
 async def webhook(
     raw_request: Request,
     api_key: str = Depends(verify_api_key),
     session_manager: SessionManager = Depends(get_session_manager),
-) -> WebhookResponse:
+):
     """
     Main webhook endpoint - hyper-flexible bypass version.
     """
@@ -206,21 +206,25 @@ async def webhook(
         else:
             logger.error(f"Callback failed for session {session_id}")
     
-    return WebhookResponse(
-        status="success",
-        reply=reply,
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "success",
+            "reply": reply,
+        }
     )
 
 
-@router.post("/api/honeypot", response_model=WebhookResponse, response_model_exclude_none=True)
+@router.post("/api/honeypot")
 async def api_honeypot(
-    request: WebhookRequest,
+    raw_request: Request,
     api_key: str = Depends(verify_api_key),
     session_manager: SessionManager = Depends(get_session_manager),
-) -> WebhookResponse:
+):
     """
     Hackathon evaluation endpoint.
-    Mirrors the webhook behavior and response shape.
+    Hyper-flexible bypass version.
     """
-    return await webhook(request, api_key=api_key, session_manager=session_manager)
+    return await webhook(raw_request, api_key=api_key, session_manager=session_manager)
 
