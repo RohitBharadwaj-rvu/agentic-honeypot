@@ -76,7 +76,7 @@ class WebhookRequest(BaseModel):
         description="Previous messages in this conversation"
     )
     metadata: Any = Field(
-        default_none=True,
+        default=None,
         validation_alias=AliasChoices("metadata", "meta"),
         description="Channel and locale information"
     )
