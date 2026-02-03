@@ -133,16 +133,25 @@ async def webhook(
             "fake_ifsc": session.fake_ifsc,
         }
         
-        metadata_obj = request.metadata or MetadataInput()
+        # Safely extract metadata fields
+        if isinstance(metadata_obj, dict):
+            metadata_dict = {
+                "channel": metadata_obj.get("channel", "SMS"),
+                "language": metadata_obj.get("language", "English"),
+                "locale": metadata_obj.get("locale", "IN"),
+            }
+        else:
+            metadata_dict = {
+                "channel": getattr(metadata_obj, "channel", "SMS"),
+                "language": getattr(metadata_obj, "language", "English"),
+                "locale": getattr(metadata_obj, "locale", "IN"),
+            }
+        
         agent_result = await run_agent(
-            session_id=request.sessionId,
-            message=request.message.text,
+            session_id=session_id,
+            message=msg_text,
             messages_history=session.messages,
-            metadata={
-                "channel": metadata_obj.channel,
-                "language": metadata_obj.language,
-                "locale": metadata_obj.locale,
-            },
+            metadata=metadata_dict,
             turn_count=session.turn_count,
             existing_intel=session.extracted_intelligence.model_dump() if hasattr(session.extracted_intelligence, 'model_dump') else dict(session.extracted_intelligence),
             persona_details=persona_details,
