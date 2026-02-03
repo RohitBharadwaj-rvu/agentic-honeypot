@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class MessageInput(BaseModel):
     """Individual message in a conversation."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     sender: Literal["scammer", "user"] = Field(
         ..., description="Who sent the message (e.g., 'scammer', 'user')"
@@ -20,7 +20,7 @@ class MessageInput(BaseModel):
 
 class MetadataInput(BaseModel):
     """Request metadata for context."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     channel: Literal["SMS", "WhatsApp", "Email", "Chat"] = Field(
         default="SMS", description="Communication channel (SMS, WhatsApp, etc.)"
@@ -34,7 +34,7 @@ class WebhookRequest(BaseModel):
     Incoming webhook payload from the external system.
     This is the input to our honey-pot API.
     """
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     sessionId: str = Field(..., description="Unique session identifier")
     message: MessageInput = Field(..., description="The current incoming message")
