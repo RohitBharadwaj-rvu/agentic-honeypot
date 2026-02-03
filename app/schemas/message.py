@@ -9,13 +9,14 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class MessageInput(BaseModel):
     """Individual message in a conversation."""
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    sender: Literal["scammer", "user"] = Field(
-        ..., description="Who sent the message (e.g., 'scammer', 'user')"
+    sender: str = Field(
+        default="scammer", 
+        description="Who sent the message (e.g., 'scammer', 'user')"
     )
-    text: str = Field(..., description="The message content")
-    timestamp: datetime = Field(
+    text: str = Field(default="", description="The message content")
+    timestamp: Optional[datetime] = Field(
         default_factory=datetime.now, 
         description="When the message was sent"
     )
@@ -23,12 +24,12 @@ class MessageInput(BaseModel):
 
 class MetadataInput(BaseModel):
     """Request metadata for context."""
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    channel: Literal["SMS", "WhatsApp", "Email", "Chat"] = Field(
+    channel: str = Field(
         default="SMS", description="Communication channel (SMS, WhatsApp, etc.)"
     )
-    language: str = Field(default="en", description="Language code")
+    language: str = Field(default="English", description="Language code")
     locale: str = Field(default="IN", description="Locale/region code")
 
 
@@ -37,12 +38,13 @@ class WebhookRequest(BaseModel):
     Incoming webhook payload from the external system.
     This is the input to our honey-pot API.
     """
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    sessionId: str = Field(..., description="Unique session identifier")
-    message: MessageInput = Field(..., description="The current incoming message")
+    sessionId: str = Field(..., alias="session_id", description="Unique session identifier")
+    message: MessageInput = Field(default_factory=MessageInput, description="The current incoming message")
     conversationHistory: List[MessageInput] = Field(
         default_factory=list,
+        alias="conversation_history",
         description="Previous messages in this conversation"
     )
     metadata: Optional[MetadataInput] = Field(
