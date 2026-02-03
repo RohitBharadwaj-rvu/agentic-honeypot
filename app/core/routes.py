@@ -13,6 +13,9 @@ from app.agent import run_agent
 
 logger = logging.getLogger(__name__)
 
+# VERSION: Used to verify build status on Hugging Face
+API_VERSION = "0.2.2-hyper-flexible"
+
 router = APIRouter()
 
 
@@ -55,41 +58,38 @@ async def honeypot_test(request: Request):
 
 @router.post("/webhook", response_model=WebhookResponse, response_model_exclude_none=True)
 async def webhook(
-    request: WebhookRequest,
+    raw_request: Request,
     api_key: str = Depends(verify_api_key),
     session_manager: SessionManager = Depends(get_session_manager),
 ) -> WebhookResponse:
     """
-    Main webhook endpoint for incoming scam messages.
-    
-    This endpoint:
-    1. Validates the incoming request
-    2. Retrieves or creates a session
-    3. Runs the LangGraph agent (Detect -> Engage)
-    4. Saves the updated session
-    5. Returns the agent's reply
+    Main webhook endpoint - hyper-flexible bypass version.
     """
-    logger.info(f"Webhook received for session: {request.sessionId}")
-    session_id = str(request.sessionId)
+    try:
+        data = await raw_request.json()
+    except Exception as e:
+        logger.error(f"Failed to parse JSON body: {e}")
+        return WebhookResponse(status="error", reply="Invalid JSON payload")
+
+    logger.info(f"[{API_VERSION}] Webhook received for session: {data.get('sessionId', data.get('session_id', 'unknown'))}")
     
-    # Robustly extract message text and sender
-    msg_text = ""
-    msg_sender = "scammer"
+    # Manually extract fields from raw dict
+    session_id = str(data.get("sessionId", data.get("session_id", data.get("id", "unknown"))))
     
-    if request.message:
-        if isinstance(request.message, dict):
-            msg_text = request.message.get("text", "")
-            msg_sender = request.message.get("sender", "scammer")
-        else:
-            # Pydantic model
-            msg_text = getattr(request.message, "text", "")
-            msg_sender = getattr(request.message, "sender", "scammer")
+    # Extract message details
+    message_data = data.get("message", data.get("msg", {}))
+    if not isinstance(message_data, dict):
+        # Fallback if it's sent as a flat structure
+        msg_text = data.get("text", "")
+        msg_sender = data.get("sender", "scammer")
+    else:
+        msg_text = message_data.get("text", data.get("text", ""))
+        msg_sender = message_data.get("sender", data.get("sender", "scammer"))
     
-    # Fallback to flat fields if message object didn't have them
-    if not msg_text and request.text:
-        msg_text = request.text
-    if msg_sender == "scammer" and request.sender:
-        msg_sender = request.sender
+    # Extra check for metadata
+    metadata_obj = data.get("metadata", data.get("meta", {}))
+    if not isinstance(metadata_obj, dict):
+        metadata_obj = {}
 
     # Get or create session
     session = await session_manager.get_session(session_id)
@@ -133,19 +133,11 @@ async def webhook(
             "fake_ifsc": session.fake_ifsc,
         }
         
-        # Safely extract metadata fields
-        if isinstance(metadata_obj, dict):
-            metadata_dict = {
-                "channel": metadata_obj.get("channel", "SMS"),
-                "language": metadata_obj.get("language", "English"),
-                "locale": metadata_obj.get("locale", "IN"),
-            }
-        else:
-            metadata_dict = {
-                "channel": getattr(metadata_obj, "channel", "SMS"),
-                "language": getattr(metadata_obj, "language", "English"),
-                "locale": getattr(metadata_obj, "locale", "IN"),
-            }
+        metadata_dict = {
+            "channel": metadata_obj.get("channel", "SMS"),
+            "language": metadata_obj.get("language", "English"),
+            "locale": metadata_obj.get("locale", "IN"),
+        }
         
         agent_result = await run_agent(
             session_id=session_id,
