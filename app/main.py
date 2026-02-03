@@ -80,13 +80,31 @@ async def diagnostic_logging_middleware(request: Request, call_next):
             body_peek = "peek-failed"
 
     response: Response = await call_next(request)
+    
+    # Try to peek into response body
+    response_body = "not-peeked"
+    if response.status_code == 200 and "application/json" in response.headers.get("content-type", ""):
+        try:
+            # We have to iterate the iterator
+            body = b""
+            async for chunk in response.body_iterator:
+                body += chunk
+            # Re-create the iterator so the response continues to the client
+            response.body_iterator = _create_iterator(body)
+            response_body = body.decode()[:500]
+        except Exception as e:
+            response_body = f"peek-failed: {str(e)}"
+
     duration = time.time() - start_time
     
     logger.info(
         f"DIAGNOSTIC: {method} {path} | Status: {response.status_code} | "
-        f"Duration: {duration:.3f}s | Body: {body_peek}"
+        f"Duration: {duration:.3f}s | Req: {body_peek} | Res: {response_body}"
     )
     return response
+
+async def _create_iterator(body: bytes):
+    yield body
 
 # Add CORS middleware
 app.add_middleware(
