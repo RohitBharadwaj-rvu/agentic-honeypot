@@ -3,7 +3,7 @@ API Routes for the Honey-Pot system.
 Defines webhook and health check endpoints.
 """
 import logging
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.schemas import WebhookRequest, WebhookResponse, SessionData, MetadataInput
 from app.services import get_session_manager, SessionManager
@@ -32,24 +32,15 @@ async def health_check():
     }
 
 
-@router.get("/honeypot/test")
-async def honeypot_test(api_key: str = Depends(verify_api_key)):
+@router.api_route(
+    "/honeypot/test",
+    methods=["GET", "POST"],
+    dependencies=[Depends(verify_api_key)],
+)
+async def honeypot_test(request: Request):
     """
     Infrastructure test endpoint for hackathon reachability checks.
-    Requires API key authentication and does not invoke the agent.
-    """
-    return {
-        "status": "ok",
-        "service": "agentic-honeypot",
-        "message": "endpoint reachable",
-    }
-
-
-@router.post("/honeypot/test")
-async def honeypot_test_post(api_key: str = Depends(verify_api_key)):
-    """
-    Allow POST for the tester if it sends the wrong method.
-    Returns the same response as GET.
+    Accepts any method, ignores request body, and does not invoke the agent.
     """
     return {
         "status": "ok",

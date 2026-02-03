@@ -5,6 +5,9 @@ Main FastAPI application entry point.
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
@@ -61,6 +64,15 @@ app.add_middleware(
 
 # Include routes
 app.include_router(router)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    """Return HTTP 400 for malformed or missing required fields."""
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": "Invalid request body."},
+    )
 
 
 @app.get("/")

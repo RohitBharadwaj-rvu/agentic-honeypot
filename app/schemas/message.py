@@ -4,19 +4,27 @@ Matches the API contract from 01_Problem_Statement.md
 """
 from datetime import datetime
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class MessageInput(BaseModel):
     """Individual message in a conversation."""
-    sender: str = Field(..., description="Who sent the message (e.g., 'scammer', 'user')")
+    model_config = ConfigDict(extra="forbid")
+
+    sender: Literal["scammer", "user"] = Field(
+        ..., description="Who sent the message (e.g., 'scammer', 'user')"
+    )
     text: str = Field(..., description="The message content")
     timestamp: datetime = Field(..., description="When the message was sent")
 
 
 class MetadataInput(BaseModel):
     """Request metadata for context."""
-    channel: str = Field(default="SMS", description="Communication channel (SMS, WhatsApp, etc.)")
+    model_config = ConfigDict(extra="forbid")
+
+    channel: Literal["SMS", "WhatsApp", "Email", "Chat"] = Field(
+        default="SMS", description="Communication channel (SMS, WhatsApp, etc.)"
+    )
     language: str = Field(default="en", description="Language code")
     locale: str = Field(default="IN", description="Locale/region code")
 
@@ -26,6 +34,8 @@ class WebhookRequest(BaseModel):
     Incoming webhook payload from the external system.
     This is the input to our honey-pot API.
     """
+    model_config = ConfigDict(extra="forbid")
+
     sessionId: str = Field(..., description="Unique session identifier")
     message: MessageInput = Field(..., description="The current incoming message")
     conversationHistory: List[MessageInput] = Field(
