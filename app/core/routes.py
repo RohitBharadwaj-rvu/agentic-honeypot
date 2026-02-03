@@ -72,6 +72,25 @@ async def webhook(
     logger.info(f"Webhook received for session: {request.sessionId}")
     session_id = str(request.sessionId)
     
+    # Robustly extract message text and sender
+    msg_text = ""
+    msg_sender = "scammer"
+    
+    if request.message:
+        if isinstance(request.message, dict):
+            msg_text = request.message.get("text", "")
+            msg_sender = request.message.get("sender", "scammer")
+        else:
+            # Pydantic model
+            msg_text = getattr(request.message, "text", "")
+            msg_sender = getattr(request.message, "sender", "scammer")
+    
+    # Fallback to flat fields if message object didn't have them
+    if not msg_text and request.text:
+        msg_text = request.text
+    if msg_sender == "scammer" and request.sender:
+        msg_sender = request.sender
+
     # Get or create session
     session = await session_manager.get_session(session_id)
     
@@ -79,21 +98,23 @@ async def webhook(
         # New session
         session = SessionData(
             session_id=session_id,
-            current_user_message=request.message.text,
+            current_user_message=msg_text,
             turn_count=1,
             messages=[],
         )
-        logger.info(f"Created new session: {request.sessionId}")
+        logger.info(f"Created new session: {session_id}")
     else:
         # Update existing session
         session.turn_count += 1
-        logger.info(f"Updated session: {request.sessionId}, turn: {session.turn_count}")
+        logger.info(f"Updated session: {session_id}, turn: {session.turn_count}")
     
     # Add incoming message to history
+    # Use a default timestamp if missing or malformed
+    from datetime import datetime
     session.messages.append({
-        "sender": request.message.sender,
-        "text": request.message.text,
-        "timestamp": request.message.timestamp.isoformat(),
+        "sender": msg_sender,
+        "text": msg_text,
+        "timestamp": datetime.now().isoformat(),
     })
     
     # Run LangGraph agent
