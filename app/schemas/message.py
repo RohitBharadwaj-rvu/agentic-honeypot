@@ -3,7 +3,7 @@ Pydantic models for webhook request and response.
 Matches the API contract from 01_Problem_Statement.md
 """
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Any, Union
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices
 
 
@@ -21,8 +21,8 @@ class MessageInput(BaseModel):
         validation_alias=AliasChoices("text"),
         description="The message content"
     )
-    timestamp: Optional[datetime] = Field(
-        default_factory=datetime.now, 
+    timestamp: Optional[Any] = Field(
+        default=None, 
         validation_alias=AliasChoices("timestamp", "time"),
         description="When the message was sent"
     )
@@ -55,7 +55,7 @@ class WebhookRequest(BaseModel):
     """
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    sessionId: str = Field(
+    sessionId: Any = Field(
         ..., 
         validation_alias=AliasChoices("sessionId", "session_id", "id"), 
         description="Unique session identifier"

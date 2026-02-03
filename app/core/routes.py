@@ -70,14 +70,15 @@ async def webhook(
     5. Returns the agent's reply
     """
     logger.info(f"Webhook received for session: {request.sessionId}")
+    session_id = str(request.sessionId)
     
     # Get or create session
-    session = await session_manager.get_session(request.sessionId)
+    session = await session_manager.get_session(session_id)
     
     if session is None:
         # New session
         session = SessionData(
-            session_id=request.sessionId,
+            session_id=session_id,
             current_user_message=request.message.text,
             turn_count=1,
             messages=[],
