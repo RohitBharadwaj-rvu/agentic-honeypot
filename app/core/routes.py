@@ -194,24 +194,24 @@ async def webhook(
     session.messages.append({
         "sender": "agent",
         "text": reply,
-        "timestamp": request.message.timestamp.isoformat(),
+        "timestamp": datetime.now().isoformat(),
     })
-    session.current_user_message = request.message.text
+    session.current_user_message = msg_text
     
     # Save session
-    await session_manager.save_session(request.sessionId, session)
-    logger.info(f"Session saved: {request.sessionId}, scam_level: {session.scam_level}")
+    await session_manager.save_session(session_id, session)
+    logger.info(f"Session saved: {session_id}, scam_level: {session.scam_level}")
     
     # Check if callback should fire (confirmed scam + intel extracted + not already sent)
     if should_send_callback(session):
-        logger.info(f"Triggering callback for session {request.sessionId}")
+        logger.info(f"Triggering callback for session {session_id}")
         callback_success = await send_final_report(session)
         if callback_success:
             session.callback_sent = True
-            await session_manager.save_session(request.sessionId, session)
-            logger.info(f"Callback successful for session {request.sessionId}")
+            await session_manager.save_session(session_id, session)
+            logger.info(f"Callback successful for session {session_id}")
         else:
-            logger.error(f"Callback failed for session {request.sessionId}")
+            logger.error(f"Callback failed for session {session_id}")
     
     return WebhookResponse(
         status="success",
