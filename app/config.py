@@ -3,6 +3,7 @@ Centralized configuration using Pydantic Settings.
 Loads from environment variables and .env file.
 """
 from functools import lru_cache
+from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,7 +22,10 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_REST_TOKEN: str
     
     # API Security
-    API_SECRET_KEY: str
+    API_SECRET_KEY: str = Field(
+        ...,
+        validation_alias=AliasChoices("API_SECRET_KEY", "API_KEY"),
+    )
     
     # NVIDIA API (replaces OpenRouter)
     NVIDIA_API_KEY: str = ""  # Set via environment variable or .env file

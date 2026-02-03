@@ -32,7 +32,20 @@ async def health_check():
     }
 
 
-@router.post("/webhook", response_model=WebhookResponse)
+@router.get("/honeypot/test")
+async def honeypot_test(api_key: str = Depends(verify_api_key)):
+    """
+    Infrastructure test endpoint for hackathon reachability checks.
+    Requires API key authentication and does not invoke the agent.
+    """
+    return {
+        "status": "ok",
+        "service": "agentic-honeypot",
+        "message": "endpoint reachable",
+    }
+
+
+@router.post("/webhook", response_model=WebhookResponse, response_model_exclude_none=True)
 async def webhook(
     request: WebhookRequest,
     api_key: str = Depends(verify_api_key),
@@ -74,7 +87,7 @@ async def webhook(
         "timestamp": request.message.timestamp.isoformat(),
     })
     
-        # Run LangGraph agent
+    # Run LangGraph agent
     try:
         # Prepare persona details from session
         persona_details = {
@@ -164,4 +177,17 @@ async def webhook(
         status="success",
         reply=reply,
     )
+
+
+@router.post("/api/honeypot", response_model=WebhookResponse, response_model_exclude_none=True)
+async def api_honeypot(
+    request: WebhookRequest,
+    api_key: str = Depends(verify_api_key),
+    session_manager: SessionManager = Depends(get_session_manager),
+) -> WebhookResponse:
+    """
+    Hackathon evaluation endpoint.
+    Mirrors the webhook behavior and response shape.
+    """
+    return await webhook(request, api_key=api_key, session_manager=session_manager)
 
