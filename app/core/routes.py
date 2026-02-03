@@ -74,7 +74,6 @@ async def webhook(
         data = await raw_request.json()
     except Exception as e:
         logger.error(f"Failed to parse JSON body: {e}")
-        from fastapi.responses import JSONResponse
         return JSONResponse(status_code=400, content={"status": "error", "reply": "Invalid JSON payload"})
 
     session_id = str(data.get("sessionId", data.get("session_id", data.get("id", "session-unknown"))))
