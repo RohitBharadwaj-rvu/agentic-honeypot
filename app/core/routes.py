@@ -178,16 +178,17 @@ async def webhook(
     
     # Trigger callback if needed
     if should_send_callback(session):
-        await send_final_report(session)
-    
+         await send_final_report(session)
+
     from fastapi.responses import JSONResponse
+    content = {
+        "status": "success",
+        "reply": reply,
+    }
+    logger.info(f"[{API_VERSION}] Sending response for {session_id}: {content}")
     return JSONResponse(
         status_code=200,
-        content={
-            "status": "success",
-            "reply": reply,
-            "sessionId": session_id  # Echo back just in case the platform expects it
-        }
+        content=content
     )
 
 

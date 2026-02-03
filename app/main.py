@@ -102,10 +102,10 @@ app.include_router(router)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Verbose validation error for GUVI debugging."""
     error_msg = str(exc.errors())
-    logger.error(f"RAW_VALIDATION_ERROR: {error_msg}")
+    logger.error(f"RAW_VALIDATION_ERROR on {request.url.path}: {error_msg}")
     return JSONResponse(
         status_code=400,
         content={
