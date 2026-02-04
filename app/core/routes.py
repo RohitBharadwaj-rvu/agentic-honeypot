@@ -3,10 +3,8 @@ API Routes for the Honey-Pot system.
 Defines webhook and health check endpoints.
 """
 import logging
-import json
-import time
-from fastapi import APIRouter, Depends, Request, HTTPException
-from fastapi.responses import JSONResponse
+import asyncio
+from fastapi import APIRouter, Depends
 
 from app.schemas import WebhookRequest, WebhookResponse, SessionData, MetadataInput
 from app.services import get_session_manager, SessionManager
@@ -16,23 +14,19 @@ from app.agent import run_agent
 
 logger = logging.getLogger(__name__)
 
-# VERSION: Used to verify build status on Hugging Face
-API_VERSION = "0.2.5-naked-routes"
-
 router = APIRouter()
+
+AGENT_TIMEOUT_SECONDS = 25
 
 
 @router.get("/health")
-async def health_check(session_manager: SessionManager = Depends(get_session_manager)):
+async def health_check():
     """
     Health check endpoint.
     Does not touch Redis or agent logic.
     """
     return {
         "status": "ok",
-        "service": "honeypot-api",
-        "version": API_VERSION,
-        "redis_fallback_mode": session_manager.is_using_fallback(),
     }
 
 
@@ -53,165 +47,156 @@ async def honeypot_test():
     }
 
 
-@router.post("/webhook")
-@router.post("/webhook/")
+@router.post("/webhook", response_model=WebhookResponse)
 async def webhook(
-    request: Request
-):
+    request: WebhookRequest,
+    api_key: str = Depends(verify_api_key),
+    session_manager: SessionManager = Depends(get_session_manager),
+) -> WebhookResponse:
     """
-    Main webhook endpoint - hyper-flexible bypass version.
+    Main webhook endpoint for incoming scam messages.
+    
+    This endpoint:
+    1. Validates the incoming request
+    2. Retrieves or creates a session
+    3. Runs the LangGraph agent (Detect -> Engage)
+    4. Saves the updated session
+    5. Returns the agent's reply
     """
-    # --- MANUAL DEPENDENCY CHECK ---
+    logger.info(f"Webhook received for session: {request.sessionId}")
+    
+    # Get or create session
+    session = await session_manager.get_session(request.sessionId)
+    
+    if session is None:
+        # New session
+        session = SessionData(
+            session_id=request.sessionId,
+            current_user_message=request.message.text,
+            turn_count=1,
+            messages=[],
+        )
+        logger.info(f"Created new session: {request.sessionId}")
+    else:
+        # Update existing session
+        session.turn_count += 1
+        logger.info(f"Updated session: {request.sessionId}, turn: {session.turn_count}")
+    
+    # Add incoming message to history
+    session.messages.append({
+        "sender": request.message.sender,
+        "text": request.message.text,
+        "timestamp": request.message.timestamp.isoformat(),
+    })
+    
+    # Run LangGraph agent
     try:
-        # Check API Key
-        api_key_header = request.headers.get("X-API-KEY")
-        await verify_api_key(api_key_header)
+        # Prepare persona details from session
+        persona_details = {
+            "persona_name": session.persona_name,
+            "persona_age": session.persona_age,
+            "persona_location": session.persona_location,
+            "persona_background": session.persona_background,
+            "persona_occupation": session.persona_occupation,
+            "persona_trait": session.persona_trait,
+            "fake_phone": session.fake_phone,
+            "fake_upi": session.fake_upi,
+            "fake_bank_account": session.fake_bank_account,
+            "fake_ifsc": session.fake_ifsc,
+        }
         
-        # Get Session Manager
-        session_manager = get_session_manager()
-        
-        # Parse JSON
-        data = await request.json()
-    except HTTPException as he:
-        return JSONResponse(status_code=he.status_code, content={"status": "error", "reply": he.detail})
-    except Exception as e:
-        logger.error(f"Failed to pre-process request: {e}")
-        return JSONResponse(status_code=400, content={"status": "error", "reply": "Invalid Request Format"})
-
-    # --- GLOBAL SAFEGUARD: Wrap logic to ensure 200 OK always ---
-    try:
-        session_id = str(data.get("sessionId", data.get("session_id", data.get("id", "session-unknown"))))
-        logger.info(f"[{API_VERSION}] Webhook received for session: {session_id}")
-        
-        # Extract message details
-        message_data = data.get("message", data.get("msg", {}))
-        if not isinstance(message_data, dict):
-            msg_text = data.get("text", "")
-            msg_sender = data.get("sender", "scammer")
-        else:
-            msg_text = message_data.get("text", data.get("text", ""))
-            msg_sender = message_data.get("sender", data.get("sender", "scammer"))
-        
-        if not msg_text and not data.get("text"):
-            msg_text = "Hello"
-
-        # Extra check for metadata
-        metadata_obj = data.get("metadata", data.get("meta", {}))
-        if not isinstance(metadata_obj, dict):
-            metadata_obj = {}
-
-        # Get or create session
-        session = await session_manager.get_session(session_id)
-        
-        if session is None:
-            session = SessionData(
-                session_id=session_id,
-                current_user_message=msg_text,
-                turn_count=1,
-                messages=[],
-            )
-            logger.info(f"Created new session: {session_id}")
-        else:
-            session.turn_count += 1
-            logger.info(f"Updated session: {session_id}, turn: {session.turn_count}")
-        
-        # Add incoming message to history
-        from datetime import datetime
-        session.messages.append({
-            "sender": msg_sender,
-            "text": msg_text,
-            "timestamp": datetime.now().isoformat(),
-        })
-        
-        # Run LangGraph agent
-        try:
-            persona_details = {
-                "persona_name": session.persona_name,
-                "persona_age": session.persona_age,
-                "persona_location": session.persona_location,
-                "persona_background": session.persona_background,
-                "persona_occupation": session.persona_occupation,
-                "persona_trait": session.persona_trait,
-                "fake_phone": session.fake_phone,
-                "fake_upi": session.fake_upi,
-                "fake_bank_account": session.fake_bank_account,
-                "fake_ifsc": session.fake_ifsc,
-            }
-            
-            metadata_dict = {
-                "channel": metadata_obj.get("channel", "SMS"),
-                "language": metadata_obj.get("language", "English"),
-                "locale": metadata_obj.get("locale", "IN"),
-            }
-            
-            agent_result = await run_agent(
-                session_id=session_id,
-                message=msg_text,
+        metadata_obj = request.metadata or MetadataInput()
+        agent_result = await asyncio.wait_for(
+            run_agent(
+                session_id=request.sessionId,
+                message=request.message.text,
                 messages_history=session.messages,
-                metadata=metadata_dict,
+                metadata={
+                    "channel": metadata_obj.channel,
+                    "language": metadata_obj.language,
+                    "locale": metadata_obj.locale,
+                },
                 turn_count=session.turn_count,
                 existing_intel=session.extracted_intelligence.model_dump() if hasattr(session.extracted_intelligence, 'model_dump') else dict(session.extracted_intelligence),
                 persona_details=persona_details,
-            )
-            
-            # Update session from agent result
-            session.scam_level = agent_result.get("scam_level", session.scam_level)
-            session.is_scam_confirmed = agent_result.get("is_scam_confirmed", session.is_scam_confirmed)
-            
-            # Update extracted intelligence
-            if "extracted_intelligence" in agent_result:
-                from app.schemas.callback import ExtractedIntelligence
-                session.extracted_intelligence = ExtractedIntelligence(**agent_result["extracted_intelligence"])
-            
-            session.termination_reason = agent_result.get("termination_reason", session.termination_reason)
-            reply = agent_result.get("agent_reply", "Hello? How can I help you?")
-            
-        except Exception as e:
-            logger.error(f"Agent error in webhook: {e}")
-            reply = "Sorry, I am a bit confused today. Can you repeat?"
+            ),
+            timeout=AGENT_TIMEOUT_SECONDS,
+        )
         
-        # Add agent reply to messages
-        from datetime import datetime
-        session.messages.append({
-            "sender": "agent",
-            "text": reply,
-            "timestamp": datetime.now().isoformat(),
-        })
-        session.current_user_message = msg_text
+        # Update session from agent result
+        session.scam_level = agent_result.get("scam_level", session.scam_level)
+        session.scam_confidence = agent_result.get("scam_confidence", session.scam_confidence)
+        session.is_scam_confirmed = agent_result.get("is_scam_confirmed", session.is_scam_confirmed)
+        session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
         
-        # Save session
-        await session_manager.save_session(session_id, session)
+        # Update persona details (in case they were initialized in this turn)
+        session.persona_name = agent_result.get("persona_name", session.persona_name)
+        session.persona_age = agent_result.get("persona_age", session.persona_age)
+        session.persona_location = agent_result.get("persona_location", session.persona_location)
+        session.persona_background = agent_result.get("persona_background", session.persona_background)
+        session.persona_occupation = agent_result.get("persona_occupation", session.persona_occupation)
+        session.persona_trait = agent_result.get("persona_trait", session.persona_trait)
+        session.fake_phone = agent_result.get("fake_phone", session.fake_phone)
+        session.fake_upi = agent_result.get("fake_upi", session.fake_upi)
+        session.fake_bank_account = agent_result.get("fake_bank_account", session.fake_bank_account)
+        session.fake_ifsc = agent_result.get("fake_ifsc", session.fake_ifsc)
         
-        # Trigger callback if needed
-        if should_send_callback(session):
-            await send_final_report(session)
-
+        # Update extracted intelligence
+        if "extracted_intelligence" in agent_result:
+            from app.schemas.callback import ExtractedIntelligence
+            session.extracted_intelligence = ExtractedIntelligence(**agent_result["extracted_intelligence"])
+        
+        # Update termination reason and agent notes
+        session.termination_reason = agent_result.get("termination_reason", session.termination_reason)
+        session.agent_notes = agent_result.get("agent_notes", session.agent_notes)
+        
+        reply = agent_result.get("agent_reply", "Hello? Who is this?")
+        
+    except asyncio.TimeoutError:
+        logger.error(f"Agent timeout for session {request.sessionId} after {AGENT_TIMEOUT_SECONDS}s")
+        reply = "Sorry, I didn't understand. Can you please repeat?"
     except Exception as e:
-        logger.critical(f"UNCAUGHT WEBHOOK ERROR: {e}", exc_info=True)
-        session_id = "unknown"
-        reply = "Hello... my signal is weak. Can you say again?"
-
-    # ULTIMATE CLEANUP: Remove newlines and extra spaces from reply to avoid JSON parsing issues
-    clean_reply = " ".join(reply.split())
+        logger.error(f"Agent error: {e}")
+        reply = "Sorry, I didn't understand. Can you please repeat?"
     
-    content = {
-        "status": "success",
-        "reply": clean_reply,
-    }
-    logger.info(f"[{API_VERSION}] Sending ULTIMATE response for {session_id}: {content}")
-    return JSONResponse(
-        status_code=200,
-        content=content,
-        headers={"Content-Type": "application/json; charset=utf-8"}
+    # Add agent reply to messages
+    session.messages.append({
+        "sender": "agent",
+        "text": reply,
+        "timestamp": request.message.timestamp.isoformat(),
+    })
+    session.current_user_message = request.message.text
+    
+    # Save session
+    await session_manager.save_session(request.sessionId, session)
+    logger.info(f"Session saved: {request.sessionId}, scam_level: {session.scam_level}")
+    
+    # Check if callback should fire (confirmed scam + intel extracted + not already sent)
+    if should_send_callback(session):
+        logger.info(f"Triggering callback for session {request.sessionId}")
+        callback_success = await send_final_report(session)
+        if callback_success:
+            session.callback_sent = True
+            await session_manager.save_session(request.sessionId, session)
+            logger.info(f"Callback successful for session {request.sessionId}")
+        else:
+            logger.error(f"Callback failed for session {request.sessionId}")
+    
+    return WebhookResponse(
+        status="success",
+        reply=reply,
+        error="",
     )
 
 
-@router.post("/api/honeypot")
-@router.post("/api/honeypot/")
+@router.post("/api/honeypot", response_model=WebhookResponse)
 async def api_honeypot(
-    request: Request,
-):
+    request: WebhookRequest,
+    api_key: str = Depends(verify_api_key),
+    session_manager: SessionManager = Depends(get_session_manager),
+) -> WebhookResponse:
     """
     Hackathon evaluation endpoint.
+    Mirrors the webhook behavior and response shape.
     """
-    return await webhook(request)
+    return await webhook(request, api_key=api_key, session_manager=session_manager)
