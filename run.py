@@ -10,6 +10,6 @@ if __name__ == "__main__":
         "app.main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", "8000")),
-        reload=True,  # Enable hot reload for development
+        reload=False,  # Disable reload for production stability
         log_level="info",
     )
