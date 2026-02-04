@@ -31,9 +31,9 @@ class Settings(BaseSettings):
     NVIDIA_API_KEY: str = ""  # Set via environment variable or .env file
     NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     
-    # Model Configuration - Using NVIDIA API with Kimi K2
-    MODEL_PRIMARY: str = "moonshotai/kimi-k2-instruct-0905"
-    MODEL_FALLBACK: str = "moonshotai/kimi-k2-instruct-0905"
+    # Model Configuration - Using NVIDIA API with Kimi K2.5
+    MODEL_PRIMARY: str = "moonshotai/kimi-k2.5"
+    MODEL_FALLBACK: str = "mistralai/mistral-large-3-675b-instruct-2512"
     
     # Debug Mode
     DEBUG: bool = False

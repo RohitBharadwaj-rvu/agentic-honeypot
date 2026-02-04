@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Benchmark Arena</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <main class="container">
+        <!-- Setup Screen -->
+        <section id="setup-screen" class="screen active">
+            <h1>LLM Benchmark <span class="accent">Arena</span></h1>
+            <p class="subtitle">Local Blind Voting for AI Agents</p>
+
+            <div class="glass-panel setup-form">
+                <label for="voter-count">Number of Voters:</label>
+                <input type="number" id="voter-count" value="2" min="1" max="10">
+                <button id="start-btn" class="btn btn-primary">Start Arena</button>
+            </div>
+        </section>
+
+        <!-- Arena Screen -->
+        <section id="arena-screen" class="screen">
+            <header class="arena-header">
+                <h2>Turn <span id="turn-num">0</span></h2>
+                <span id="vote-status" class="badge">Waiting for votes...</span>
+            </header>
+
+            <!-- Chat Input -->
+            <div class="glass-panel input-section">
+                <input type="text" id="message-input" placeholder="Type your message to all agents...">
+                <button id="send-btn" class="btn btn-primary">Send</button>
+            </div>
+
+            <!-- Responses Grid -->
+            <div id="responses-grid" class="responses-grid">
+                <!-- Filled by JS -->
+            </div>
+
+            <!-- Voter Panels -->
+            <div id="voter-panels" class="voter-panels">
+                <!-- Filled by JS -->
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="next-btn" class="btn btn-secondary" disabled>Next Turn</button>
+                <button id="finish-btn" class="btn btn-outline">Finish & See Results</button>
+            </div>
+        </section>
+
+        <!-- Results Screen -->
+        <section id="results-screen" class="screen">
+            <h1>Results</h1>
+            <div id="results-content" class="glass-panel">
+                <!-- Filled by JS -->
+            </div>
+            <button id="restart-btn" class="btn btn-primary">Start New Session</button>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

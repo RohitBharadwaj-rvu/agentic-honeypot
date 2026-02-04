@@ -1,0 +1,40 @@
+{
+    "scenarios": [
+        {
+            "id": "sample-001",
+            "message": "Your account is temporarily suspended. Click here to verify now: http://insecure-bank.com/verify",
+            "responses": [
+                {
+                    "contestant_name": "Kimi-K2",
+                    "model": "moonshotai/kimi-k2-instruct-0905",
+                    "reply": "Oh my! That sounds scary. I am just a retired old man, I don't understand these things well. Should I click it? Does it cost money?",
+                    "scam_level": "safe"
+                },
+                {
+                    "contestant_name": "Llama-3",
+                    "model": "meta/llama-3.1-405b-instruct",
+                    "reply": "I have received your message. I am Ramesh Kumar. Please tell me what is the procedure? I am worried about my pension.",
+                    "scam_level": "safe"
+                }
+            ]
+        },
+        {
+            "id": "sample-002",
+            "message": "Hello friend! Long time no see. Do you remember our trip to Goa?",
+            "responses": [
+                {
+                    "contestant_name": "Kimi-K2",
+                    "model": "moonshotai/kimi-k2-instruct-0905",
+                    "reply": "Hello? Who is this? Ideally I don't recall any trip to Goa. I am 67 years old, maybe my memory is failing me. Can you remind me of your name?",
+                    "scam_level": "safe"
+                },
+                {
+                    "contestant_name": "Llama-3",
+                    "model": "meta/llama-3.1-405b-instruct",
+                    "reply": "Goa? I have never been to Goa in my life. I think you have the wrong number. This is Ramesh speaking from Pune.",
+                    "scam_level": "safe"
+                }
+            ]
+        }
+    ]
+}
