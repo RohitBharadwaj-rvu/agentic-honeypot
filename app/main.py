@@ -56,7 +56,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add diagnostic middleware to log all traffic
 @app.middleware("http")
 async def diagnostic_logging_middleware(request: Request, call_next):
     start_time = time.time()
@@ -64,47 +63,20 @@ async def diagnostic_logging_middleware(request: Request, call_next):
     # Log request basics
     method = request.method
     path = request.url.path
-    query = str(request.query_params)
     
-    # Try to peek into body if it's small
-    body_peek = "not-json"
-    if "application/json" in request.headers.get("content-type", ""):
-        try:
-            body_bytes = await request.body()
-            # We must replace the stream so the route can read it again
-            async def receive():
-                return {"type": "http.request", "body": body_bytes}
-            request._receive = receive
-            body_peek = body_bytes.decode()[:500] 
-        except:
-            body_peek = "peek-failed"
-
-    response: Response = await call_next(request)
-    
-    # Try to peek into response body
-    response_body = "not-peeked"
-    if response.status_code == 200 and "application/json" in response.headers.get("content-type", ""):
-        try:
-            # We have to iterate the iterator
-            body = b""
-            async for chunk in response.body_iterator:
-                body += chunk
-            # Re-create the iterator so the response continues to the client
-            response.body_iterator = _create_iterator(body)
-            response_body = body.decode()[:500]
-        except Exception as e:
-            response_body = f"peek-failed: {str(e)}"
+    try:
+        response: Response = await call_next(request)
+    except Exception as e:
+        logger.error(f"Middleware caught unhandled exception: {e}", exc_info=True)
+        return JSONResponse(status_code=500, content={"status": "error", "message": "Internal Server Error"})
 
     duration = time.time() - start_time
     
     logger.info(
         f"DIAGNOSTIC: {method} {path} | Status: {response.status_code} | "
-        f"Duration: {duration:.3f}s | Req: {body_peek} | Res: {response_body}"
+        f"Duration: {duration:.3f}s"
     )
     return response
-
-async def _create_iterator(body: bytes):
-    yield body
 
 # Add CORS middleware
 app.add_middleware(
@@ -122,8 +94,15 @@ app.include_router(router)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Verbose validation error for GUVI debugging."""
+    try:
+        body = await request.body()
+        body_str = body.decode()
+    except:
+        body_str = "could not read body"
+        
     error_msg = str(exc.errors())
-    logger.error(f"RAW_VALIDATION_ERROR on {request.url.path}: {error_msg}")
+    logger.error(f"VALIDATION_ERROR | {request.method} {request.url.path} | Body: {body_str} | Error: {error_msg}")
+    
     return JSONResponse(
         status_code=400,
         content={
