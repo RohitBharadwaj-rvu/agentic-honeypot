@@ -139,7 +139,7 @@ async def root():
     """Root endpoint with API info."""
     return {
         "service": "Agentic Honey-Pot API",
-        "version": "0.2.3",
+        "version": "0.2.4-final-valuation",
         "status": "active",
         "endpoints": ["/webhook", "/api/honeypot", "/health"],
     }

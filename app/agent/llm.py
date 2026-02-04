@@ -16,6 +16,21 @@ logger = logging.getLogger(__name__)
 # Track script fallback index for cycling
 _script_fallback_index = 0
 
+# Persistent OpenAI client instance
+_client: Optional[OpenAI] = None
+
+
+def get_openai_client() -> OpenAI:
+    """Get or create a persistent OpenAI client instance."""
+    global _client
+    if _client is None:
+        settings = get_settings()
+        _client = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=settings.NVIDIA_API_KEY,
+        )
+    return _client
+
 # Model configuration - using NVIDIA API with Kimi K2
 MODEL_CONFIG = {
     "persona": {
@@ -118,11 +133,8 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     primary_model = config["primary"]
     fallback_model = config["fallback"]
     
-    # Create OpenAI client with NVIDIA base URL
-    client = OpenAI(
-        base_url="https://integrate.api.nvidia.com/v1",
-        api_key=api_key,
-    )
+    # Get persistent OpenAI client
+    client = get_openai_client()
     
     # Try primary model
     result = _call_with_retry(client, primary_model, messages)
