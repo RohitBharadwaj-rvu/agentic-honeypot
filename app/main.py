@@ -7,11 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from fastapi import status, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
-import time
-import json
 
 from app.config import get_settings
 from app.core.routes import router
@@ -56,12 +52,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Diagnostic middleware removed for naked bypass
-
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Configure appropriately for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,24 +66,32 @@ app.include_router(router)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Verbose validation error for GUVI debugging."""
+async def validation_exception_handler(request, exc: RequestValidationError):
+    """Return HTTP 400 for malformed or missing required fields."""
+    raw_body = ""
     try:
-        body = await request.body()
-        body_str = body.decode()
-    except:
-        body_str = "could not read body"
-        
-    error_msg = str(exc.errors())
-    logger.error(f"VALIDATION_ERROR | {request.method} {request.url.path} | Body: {body_str} | Error: {error_msg}")
-    
+        raw_bytes = await request.body()
+        raw_body = raw_bytes.decode("utf-8", errors="ignore") if raw_bytes else ""
+    except Exception as e:
+        logger.warning(f"Failed to read raw body for validation error: {e}")
+
+    if raw_body:
+        max_len = 2000
+        if len(raw_body) > max_len:
+            raw_body = f"{raw_body[:max_len]}...[truncated]"
+
+    logger.warning(
+        "Request validation error: method=%s path=%s content_type=%s content_length=%s body=%s errors=%s",
+        request.method,
+        request.url.path,
+        request.headers.get("content-type"),
+        request.headers.get("content-length"),
+        raw_body,
+        exc.errors(),
+    )
     return JSONResponse(
-        status_code=400,
-        content={
-            "status": "error",
-            "detail": "INVALID_REQUEST_BODY",
-            "debug_info": exc.errors()
-        },
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": "Invalid request body."},
     )
 
 
@@ -98,7 +100,7 @@ async def root():
     """Root endpoint with API info."""
     return {
         "service": "Agentic Honey-Pot API",
-        "version": "0.2.5-naked-routes",
-        "status": "active",
-        "endpoints": ["/webhook", "/api/honeypot", "/health"],
+        "version": "0.1.0",
+        "docs": "/docs",
+        "health": "/health",
     }
