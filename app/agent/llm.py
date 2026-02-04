@@ -48,6 +48,7 @@ def get_model_config():
         },
     }
 
+
 # Retry configuration
 MAX_RETRIES = 2
 BACKOFF_SECONDS = [1, 2]
