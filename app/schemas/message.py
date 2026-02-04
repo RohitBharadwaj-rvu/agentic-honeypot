@@ -89,4 +89,4 @@ class WebhookResponse(BaseModel):
     """
     status: Literal["success", "error"] = Field(..., description="Response status")
     reply: str = Field(..., description="The agent's reply message")
-    error: Optional[str] = Field(default=None, description="Error message if status is error")
+    error: str = Field(default="", description="Error message if status is error")

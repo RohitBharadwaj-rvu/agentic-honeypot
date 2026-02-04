@@ -3,6 +3,7 @@ Session Manager with Upstash Redis and Local File Store Fallback.
 Handles session persistence with automatic TTL and graceful degradation.
 """
 import logging
+import time
 from typing import Optional
 from functools import lru_cache
 from collections import OrderedDict
@@ -64,13 +65,17 @@ class SessionManager:
         # Fallback to persistent local file store
         self._fallback_store = LocalFileStore()
         self._using_fallback = False
+        self._last_redis_failure = 0.0
+        self._redis_retry_seconds = 30
         
         # HTTP client for Upstash REST API
         self._client: Optional[httpx.AsyncClient] = None
     
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client for Upstash."""
-        if self._client is None:
+        if not self.redis_url or not self.redis_token:
+            raise RuntimeError("Upstash configuration missing")
+        if self._client is None or getattr(self._client, "is_closed", False):
             self._client = httpx.AsyncClient(
                 base_url=self.redis_url,
                 headers={"Authorization": f"Bearer {self.redis_token}"},
@@ -91,6 +96,9 @@ class SessionManager:
         key = self._make_key(session_id)
         
         # Try Redis first
+        if self._using_fallback:
+            if (time.monotonic() - self._last_redis_failure) >= self._redis_retry_seconds:
+                self._using_fallback = False
         if not self._using_fallback:
             try:
                 client = await self._get_client()
@@ -109,6 +117,7 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Redis connection failed, switching to fallback: {e}")
                 self._using_fallback = True
+                self._last_redis_failure = time.monotonic()
         
         # Fallback to local file store
         cached = self._fallback_store.get(session_id)
@@ -127,6 +136,9 @@ class SessionManager:
         json_data = orjson.dumps(data.model_dump()).decode("utf-8")
         
         # Try Redis first
+        if self._using_fallback:
+            if (time.monotonic() - self._last_redis_failure) >= self._redis_retry_seconds:
+                self._using_fallback = False
         if not self._using_fallback:
             try:
                 client = await self._get_client()
@@ -145,6 +157,7 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Redis save failed, using fallback: {e}")
                 self._using_fallback = True
+                self._last_redis_failure = time.monotonic()
         
         # Fallback to local file store
         self._fallback_store.set(session_id, data.model_dump(), ttl_seconds=self.ttl)
@@ -161,6 +174,8 @@ class SessionManager:
                 return response.status_code == 200
             except Exception as e:
                 logger.error(f"Redis delete failed: {e}")
+                self._using_fallback = True
+                self._last_redis_failure = time.monotonic()
         
         return self._fallback_store.delete(session_id)
     

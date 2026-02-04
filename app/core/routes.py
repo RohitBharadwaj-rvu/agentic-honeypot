@@ -26,10 +26,8 @@ router = APIRouter()
 async def health_check():
     """
     Health check endpoint.
-    Returns system status and Redis connection state.
+    Does not touch Redis or agent logic.
     """
-    session_manager = get_session_manager()
-    
     return {
         "status": "ok",
         "service": "honeypot-api",
@@ -39,24 +37,20 @@ async def health_check():
     }
 
 
-# DEBUG ONLY — REMOVE BEFORE FINAL SUBMISSION
 @router.api_route(
     "/honeypot/test",
     methods=["GET", "POST"],
     dependencies=[Depends(verify_api_key)],
 )
-async def honeypot_test(request: Request):
+async def honeypot_test():
     """
-    Debug endpoint to echo raw request details for the tester.
+    Infrastructure test endpoint for hackathon reachability checks.
+    Accepts GET/POST, ignores request body, and does not invoke the agent.
     """
-    raw_bytes = await request.body()
-    raw_body = raw_bytes.decode("utf-8", errors="ignore") if raw_bytes else ""
-    headers = dict(request.headers)
     return {
-        "method": request.method,
-        "headers": headers,
-        "raw_body": raw_body,
-        "content_length": request.headers.get("content-length"),
+        "status": "ok",
+        "service": "agentic-honeypot",
+        "message": "endpoint reachable",
     }
 
 
@@ -215,4 +209,3 @@ async def api_honeypot(
     Hackathon evaluation endpoint.
     """
     return await webhook(raw_request, api_key=api_key, session_manager=session_manager)
-
