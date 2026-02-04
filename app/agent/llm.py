@@ -31,18 +31,6 @@ def get_openai_client() -> OpenAI:
         )
     return _client
 
-# Model configuration - using NVIDIA API with Kimi K2
-MODEL_CONFIG = {
-    "persona": {
-        "primary": "moonshotai/kimi-k2-instruct-0905",
-        "fallback": "moonshotai/kimi-k2-instruct-0905",
-    },
-    "extract": {
-        "primary": "moonshotai/kimi-k2-instruct-0905",
-        "fallback": "moonshotai/kimi-k2-instruct-0905",
-    },
-}
-
 # Retry configuration
 MAX_RETRIES = 2
 BACKOFF_SECONDS = [1, 2]  # Exponential backoff: 1s, then 2s
@@ -116,7 +104,6 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     Returns script fallback for persona tasks, safe fallback for extract.
     """
     global _script_fallback_index
-    
     settings = get_settings()
     api_key = settings.NVIDIA_API_KEY
     
@@ -124,8 +111,21 @@ def call_llm(task: str, messages: List[Dict]) -> str:
         logger.error("NVIDIA_API_KEY not configured")
         return SAFE_FALLBACK_RESPONSE
     
+    # Dynamic Model Configuration using Settings
+    # This allows environment variables to override models (e.g. for benchmarking)
+    model_config = {
+        "persona": {
+            "primary": settings.MODEL_PRIMARY,
+            "fallback": settings.MODEL_FALLBACK,
+        },
+        "extract": {
+            "primary": settings.MODEL_PRIMARY,
+            "fallback": settings.MODEL_FALLBACK,
+        },
+    }
+    
     # Get model configuration for task
-    config = MODEL_CONFIG.get(task)
+    config = model_config.get(task)
     if not config:
         logger.error(f"Unknown task: {task}")
         return SAFE_FALLBACK_RESPONSE
