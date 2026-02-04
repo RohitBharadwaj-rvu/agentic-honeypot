@@ -56,27 +56,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-@app.middleware("http")
-async def diagnostic_logging_middleware(request: Request, call_next):
-    start_time = time.time()
-    
-    # Log request basics
-    method = request.method
-    path = request.url.path
-    
-    try:
-        response: Response = await call_next(request)
-    except Exception as e:
-        logger.error(f"Middleware caught unhandled exception: {e}", exc_info=True)
-        return JSONResponse(status_code=500, content={"status": "error", "message": "Internal Server Error"})
-
-    duration = time.time() - start_time
-    
-    logger.info(
-        f"DIAGNOSTIC: {method} {path} | Status: {response.status_code} | "
-        f"Duration: {duration:.3f}s"
-    )
-    return response
+# Diagnostic middleware removed for naked bypass
 
 # Add CORS middleware
 app.add_middleware(
@@ -118,7 +98,7 @@ async def root():
     """Root endpoint with API info."""
     return {
         "service": "Agentic Honey-Pot API",
-        "version": "0.2.4-final-valuation",
+        "version": "0.2.5-naked-routes",
         "status": "active",
         "endpoints": ["/webhook", "/api/honeypot", "/health"],
     }

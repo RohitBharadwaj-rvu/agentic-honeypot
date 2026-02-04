@@ -17,13 +17,13 @@ from app.agent import run_agent
 logger = logging.getLogger(__name__)
 
 # VERSION: Used to verify build status on Hugging Face
-API_VERSION = "0.2.4-final-valuation"
+API_VERSION = "0.2.5-naked-routes"
 
 router = APIRouter()
 
 
 @router.get("/health")
-async def health_check():
+async def health_check(session_manager: SessionManager = Depends(get_session_manager)):
     """
     Health check endpoint.
     Does not touch Redis or agent logic.
@@ -31,8 +31,7 @@ async def health_check():
     return {
         "status": "ok",
         "service": "honeypot-api",
-        "version": "0.2.2",
-        "api_version": API_VERSION,
+        "version": API_VERSION,
         "redis_fallback_mode": session_manager.is_using_fallback(),
     }
 
@@ -57,18 +56,27 @@ async def honeypot_test():
 @router.post("/webhook")
 @router.post("/webhook/")
 async def webhook(
-    raw_request: Request,
-    api_key: str = Depends(verify_api_key),
-    session_manager: SessionManager = Depends(get_session_manager),
+    request: Request
 ):
     """
     Main webhook endpoint - hyper-flexible bypass version.
     """
+    # --- MANUAL DEPENDENCY CHECK ---
     try:
-        data = await raw_request.json()
+        # Check API Key
+        api_key_header = request.headers.get("X-API-KEY")
+        await verify_api_key(api_key_header)
+        
+        # Get Session Manager
+        session_manager = get_session_manager()
+        
+        # Parse JSON
+        data = await request.json()
+    except HTTPException as he:
+        return JSONResponse(status_code=he.status_code, content={"status": "error", "reply": he.detail})
     except Exception as e:
-        logger.error(f"Failed to parse JSON body: {e}")
-        return JSONResponse(status_code=400, content={"status": "error", "reply": "Invalid JSON payload"})
+        logger.error(f"Failed to pre-process request: {e}")
+        return JSONResponse(status_code=400, content={"status": "error", "reply": "Invalid Request Format"})
 
     # --- GLOBAL SAFEGUARD: Wrap logic to ensure 200 OK always ---
     try:
@@ -201,11 +209,9 @@ async def webhook(
 @router.post("/api/honeypot")
 @router.post("/api/honeypot/")
 async def api_honeypot(
-    raw_request: Request,
-    api_key: str = Depends(verify_api_key),
-    session_manager: SessionManager = Depends(get_session_manager),
+    request: Request,
 ):
     """
     Hackathon evaluation endpoint.
     """
-    return await webhook(raw_request, api_key=api_key, session_manager=session_manager)
+    return await webhook(request)
