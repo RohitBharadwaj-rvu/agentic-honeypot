@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-AGENT_TIMEOUT_SECONDS = 25
+AGENT_TIMEOUT_SECONDS = 75
 
 
 @router.get("/health")

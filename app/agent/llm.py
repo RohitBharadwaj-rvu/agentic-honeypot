@@ -58,14 +58,15 @@ def _call_with_retry(
     client: OpenAI,
     model: str,
     messages: List[Dict],
+    task: Optional[str] = None
 ) -> Optional[str]:
     """
     Call model with retry logic for errors.
-    Supports thinking mode for Kimi models.
+    Supports thinking mode for Kimi models if the task is 'persona'.
     """
     extra_body = {}
-    # Enable thinking mode for Kimi models if requested in the payload snippet
-    if "kimi" in model.lower():
+    # Enable thinking mode for Kimi models ONLY for persona replies to save latency
+    if "kimi" in model.lower() and task == "persona":
         extra_body["chat_template_kwargs"] = {"thinking": True}
 
     for attempt in range(MAX_RETRIES + 1):
@@ -121,7 +122,7 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     
     # Try primary model with primary key
     client_primary = get_openai_client(settings.NVIDIA_API_KEY_PRIMARY)
-    result = _call_with_retry(client_primary, primary_model, messages)
+    result = _call_with_retry(client_primary, primary_model, messages, task=task)
     
     if result:
         return result.strip()
@@ -130,7 +131,7 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     if fallback_model and fallback_model != primary_model:
         logger.info(f"Switching to fallback model: {fallback_model}")
         client_fallback = get_openai_client(settings.NVIDIA_API_KEY_FALLBACK)
-        result = _call_with_retry(client_fallback, fallback_model, messages)
+        result = _call_with_retry(client_fallback, fallback_model, messages, task=task)
         
         if result:
             return result.strip()
