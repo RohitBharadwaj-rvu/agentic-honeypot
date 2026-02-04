@@ -87,15 +87,18 @@ async def webhook(
     # Get or create session
     session = await session_manager.get_session(request.sessionId)
     
-    if session is None:
-        # New session
+    # If it's a new request (empty history), we should start fresh even if session exists
+    is_initial_message = not request.conversationHistory
+    
+    if session is None or is_initial_message:
+        # New session or reset existing session for fresh start
         session = SessionData(
             session_id=request.sessionId,
             current_user_message=request.message.text,
             turn_count=1,
             messages=[],
         )
-        logger.info(f"Created new session: {request.sessionId}")
+        logger.info(f"{'Created' if session is None else 'Reset'} session: {request.sessionId}")
     else:
         # Update existing session
         session.turn_count += 1
@@ -203,11 +206,12 @@ async def webhook(
         else:
             logger.error(f"Callback failed for session {request.sessionId}")
     
-    return WebhookResponse(
+    response_obj = WebhookResponse(
         status="success",
         reply=reply,
-        error="",
     )
+    logger.info(f"Sending response for session {request.sessionId}: {response_obj.model_dump_json()}")
+    return response_obj
 
 
 @router.post("/api/honeypot", response_model=WebhookResponse)

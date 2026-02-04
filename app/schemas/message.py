@@ -71,6 +71,5 @@ class WebhookResponse(BaseModel):
     Synchronous response sent back to the caller.
     Contains the agent's reply to the scammer.
     """
-    status: Literal["success", "error"] = Field(..., description="Response status")
+    status: str = Field(..., description="Response status (success/error)")
     reply: str = Field(..., description="The agent's reply message")
-    error: str = Field(default="", description="Error message if status is error")
