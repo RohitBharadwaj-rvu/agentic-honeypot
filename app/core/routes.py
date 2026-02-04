@@ -30,6 +30,25 @@ async def health_check():
     }
 
 
+@router.get("/health/diag")
+async def health_diag():
+    """
+    Public diagnostic endpoint to verify environment loading.
+    Does NOT reveal actual keys, only if they are set.
+    """
+    from app.config import get_settings
+    settings = get_settings()
+    return {
+        "UPSTASH_REDIS_SET": bool(settings.UPSTASH_REDIS_REST_URL and settings.UPSTASH_REDIS_REST_TOKEN),
+        "API_SECRET_KEY_SET": bool(settings.API_SECRET_KEY),
+        "NVIDIA_PRIMARY_SET": bool(settings.NVIDIA_API_KEY_PRIMARY),
+        "NVIDIA_FALLBACK_SET": bool(settings.NVIDIA_API_KEY_FALLBACK),
+        "DEBUG_MODE": settings.DEBUG,
+        "MODEL_PRIMARY": settings.MODEL_PRIMARY,
+        "MODEL_FALLBACK": settings.MODEL_FALLBACK,
+    }
+
+
 @router.api_route(
     "/honeypot/test",
     methods=["GET", "POST"],
@@ -156,6 +175,8 @@ async def webhook(
         logger.error(f"Agent timeout for session {request.sessionId} after {AGENT_TIMEOUT_SECONDS}s")
         reply = "Sorry, I didn't understand. Can you please repeat?"
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         logger.error(f"Agent error: {e}")
         reply = "Sorry, I didn't understand. Can you please repeat?"
     
