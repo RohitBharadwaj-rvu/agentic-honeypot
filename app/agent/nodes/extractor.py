@@ -118,30 +118,35 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
     regex_accounts = _extract_bank_accounts(message)
     regex_keywords = _extract_suspicious_keywords(message)
     
-    # Step 2: LLM reinforcement (optional)
+    # Step 2: LLM reinforcement (Only if regex missed critical intel to save time)
     llm_upi = []
     llm_phones = []
     llm_links = []
     llm_accounts = []
     
-    # Build context for LLM
-    context = f"Message to analyze: {message}"
-    if messages:
-        recent_texts = [m.get("text", "") for m in messages[-3:]]
-        context += f"\n\nRecent context: {' | '.join(recent_texts)}"
+    needs_llm = not (regex_upi or regex_links or regex_accounts)
     
-    llm_messages = [
-        {"role": "system", "content": EXTRACT_SYSTEM_PROMPT},
-        {"role": "user", "content": context},
-    ]
-    
-    llm_response = call_llm("extract", llm_messages)
-    llm_data = _parse_llm_extraction(llm_response)
-    
-    llm_upi = llm_data["upiIds"]
-    llm_phones = llm_data["phoneNumbers"]
-    llm_links = llm_data["phishingLinks"]
-    llm_accounts = llm_data["bankAccounts"]
+    if needs_llm:
+        # Build context for LLM
+        context = f"Message to analyze: {message}"
+        if messages:
+            recent_texts = [m.get("text", "") for m in messages[-3:]]
+            context += f"\n\nRecent context: {' | '.join(recent_texts)}"
+        
+        llm_messages = [
+            {"role": "system", "content": EXTRACT_SYSTEM_PROMPT},
+            {"role": "user", "content": context},
+        ]
+        
+        llm_response = call_llm("extract", llm_messages)
+        llm_data = _parse_llm_extraction(llm_response)
+        
+        llm_upi = llm_data["upiIds"]
+        llm_phones = llm_data["phoneNumbers"]
+        llm_links = llm_data["phishingLinks"]
+        llm_accounts = llm_data["bankAccounts"]
+    else:
+        logger.info("Skipping LLM extraction (regex already found data)")
     
     # Step 3: Merge all extractions
     all_upi = set(regex_upi) | set(llm_upi)

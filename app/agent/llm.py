@@ -65,9 +65,9 @@ def _call_with_retry(
     Supports thinking mode for Kimi models if the task is 'persona'.
     """
     extra_body = {}
-    # Enable thinking mode for Kimi models ONLY for persona replies to save latency
-    if "kimi" in model.lower() and task == "persona":
-        extra_body["chat_template_kwargs"] = {"thinking": True}
+    # Disabled thinking mode for all tasks to stay under 30s platform timeout
+    # if "kimi" in model.lower() and task == "persona":
+    #     extra_body["chat_template_kwargs"] = {"thinking": True}
 
     for attempt in range(MAX_RETRIES + 1):
         try:
