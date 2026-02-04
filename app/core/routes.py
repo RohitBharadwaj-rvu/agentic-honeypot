@@ -3,7 +3,7 @@ API Routes for the Honey-Pot system.
 Defines webhook and health check endpoints.
 """
 import logging
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 from app.schemas import WebhookRequest, WebhookResponse, SessionData, MetadataInput
 from app.services import get_session_manager, SessionManager
@@ -20,40 +20,31 @@ router = APIRouter()
 async def health_check():
     """
     Health check endpoint.
-    Returns system status and Redis connection state.
+    Does not touch Redis or agent logic.
     """
-    session_manager = get_session_manager()
-    
     return {
         "status": "ok",
-        "service": "honeypot-api",
-        "version": "0.2.0",
-        "redis_fallback_mode": session_manager.is_using_fallback(),
     }
 
 
-# DEBUG ONLY — REMOVE BEFORE FINAL SUBMISSION
 @router.api_route(
     "/honeypot/test",
     methods=["GET", "POST"],
     dependencies=[Depends(verify_api_key)],
 )
-async def honeypot_test(request: Request):
+async def honeypot_test():
     """
-    Debug endpoint to echo raw request details for the tester.
+    Infrastructure test endpoint for hackathon reachability checks.
+    Accepts GET/POST, ignores request body, and does not invoke the agent.
     """
-    raw_bytes = await request.body()
-    raw_body = raw_bytes.decode("utf-8", errors="ignore") if raw_bytes else ""
-    headers = dict(request.headers)
     return {
-        "method": request.method,
-        "headers": headers,
-        "raw_body": raw_body,
-        "content_length": request.headers.get("content-length"),
+        "status": "ok",
+        "service": "agentic-honeypot",
+        "message": "endpoint reachable",
     }
 
 
-@router.post("/webhook", response_model=WebhookResponse, response_model_exclude_none=True)
+@router.post("/webhook", response_model=WebhookResponse)
 async def webhook(
     request: WebhookRequest,
     api_key: str = Depends(verify_api_key),
@@ -185,10 +176,11 @@ async def webhook(
     return WebhookResponse(
         status="success",
         reply=reply,
+        error="",
     )
 
 
-@router.post("/api/honeypot", response_model=WebhookResponse, response_model_exclude_none=True)
+@router.post("/api/honeypot", response_model=WebhookResponse)
 async def api_honeypot(
     request: WebhookRequest,
     api_key: str = Depends(verify_api_key),
@@ -199,4 +191,3 @@ async def api_honeypot(
     Mirrors the webhook behavior and response shape.
     """
     return await webhook(request, api_key=api_key, session_manager=session_manager)
-
