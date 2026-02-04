@@ -3,20 +3,36 @@ Pydantic models for webhook request and response.
 Matches the API contract from 01_Problem_Statement.md
 """
 from datetime import datetime
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
+from typing import List, Literal, Optional, Any
+from pydantic import BaseModel, Field, ConfigDict, AliasChoices
 
 
 class MessageInput(BaseModel):
     """Individual message in a conversation."""
-    sender: str = Field(..., description="Who sent the message (e.g., 'scammer', 'user')")
-    text: str = Field(..., description="The message content")
-    timestamp: datetime = Field(..., description="When the message was sent")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    sender: str = Field(
+        ..., 
+        validation_alias=AliasChoices("sender"),
+        description="Who sent the message"
+    )
+    text: str = Field(
+        ..., 
+        validation_alias=AliasChoices("text"),
+        description="The message content"
+    )
+    timestamp: datetime = Field(
+        ..., 
+        validation_alias=AliasChoices("timestamp", "time"),
+        description="When the message was sent"
+    )
 
 
 class MetadataInput(BaseModel):
     """Request metadata for context."""
-    channel: str = Field(default="SMS", description="Communication channel (SMS, WhatsApp, etc.)")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    channel: str = Field(default="SMS", description="Communication channel")
     language: str = Field(default="en", description="Language code")
     locale: str = Field(default="IN", description="Locale/region code")
 
@@ -24,17 +40,29 @@ class MetadataInput(BaseModel):
 class WebhookRequest(BaseModel):
     """
     Incoming webhook payload from the external system.
-    This is the input to our honey-pot API.
+    Restored with aliases for backward compatibility.
     """
-    sessionId: str = Field(..., description="Unique session identifier")
-    message: MessageInput = Field(..., description="The current incoming message")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    sessionId: str = Field(
+        ..., 
+        validation_alias=AliasChoices("sessionId", "session_id", "id"),
+        description="Unique session identifier"
+    )
+    message: MessageInput = Field(
+        ..., 
+        validation_alias=AliasChoices("message", "msg"),
+        description="The current incoming message"
+    )
     conversationHistory: Optional[List[MessageInput]] = Field(
         default_factory=list,
-        description="Previous messages in this conversation"
+        validation_alias=AliasChoices("conversationHistory", "history"),
+        description="Previous messages"
     )
     metadata: Optional[MetadataInput] = Field(
         default_factory=MetadataInput,
-        description="Channel and locale information"
+        validation_alias=AliasChoices("metadata", "meta"),
+        description="Metadata"
     )
 
 

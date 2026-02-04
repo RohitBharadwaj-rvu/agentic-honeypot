@@ -16,36 +16,41 @@ logger = logging.getLogger(__name__)
 # Track script fallback index for cycling
 _script_fallback_index = 0
 
-# Persistent OpenAI client instance
-_client: Optional[OpenAI] = None
+# Persistent OpenAI client instances for each key
+_clients_cache: Dict[str, OpenAI] = {}
 
 
-def get_openai_client() -> OpenAI:
-    """Get or create a persistent OpenAI client instance."""
-    global _client
-    if _client is None:
-        settings = get_settings()
-        _client = OpenAI(
+def get_openai_client(api_key: Optional[str] = None) -> OpenAI:
+    """Get or create a persistent OpenAI client instance for a specific key."""
+    settings = get_settings()
+    key = api_key or settings.NVIDIA_API_KEY_PRIMARY or settings.NVIDIA_API_KEY
+    
+    if key not in _clients_cache:
+        _clients_cache[key] = OpenAI(
             base_url="https://integrate.api.nvidia.com/v1",
-            api_key=settings.NVIDIA_API_KEY,
+            api_key=key,
         )
-    return _client
+    return _clients_cache[key]
 
-# Model configuration - using NVIDIA API with Kimi K2
-MODEL_CONFIG = {
-    "persona": {
-        "primary": "moonshotai/kimi-k2-instruct-0905",
-        "fallback": "moonshotai/kimi-k2-instruct-0905",
-    },
-    "extract": {
-        "primary": "moonshotai/kimi-k2-instruct-0905",
-        "fallback": "moonshotai/kimi-k2-instruct-0905",
-    },
-}
+
+# Model configuration - Routing based on settings
+def get_model_config():
+    settings = get_settings()
+    # Default to Kimi as primary and Mistral as fallback as per user request
+    return {
+        "persona": {
+            "primary": settings.MODEL_PRIMARY,
+            "fallback": settings.MODEL_FALLBACK,
+        },
+        "extract": {
+            "primary": settings.MODEL_PRIMARY,
+            "fallback": settings.MODEL_FALLBACK,
+        },
+    }
 
 # Retry configuration
 MAX_RETRIES = 2
-BACKOFF_SECONDS = [1, 2]  # Exponential backoff: 1s, then 2s
+BACKOFF_SECONDS = [1, 2]
 
 
 def _call_with_retry(
@@ -55,20 +60,23 @@ def _call_with_retry(
 ) -> Optional[str]:
     """
     Call model with retry logic for errors.
-    
-    Retries up to MAX_RETRIES times with exponential backoff.
-    Returns response text or None if all retries fail.
+    Supports thinking mode for Kimi models.
     """
+    extra_body = {}
+    # Enable thinking mode for Kimi models if requested in the payload snippet
+    if "kimi" in model.lower():
+        extra_body["chat_template_kwargs"] = {"thinking": True}
+
     for attempt in range(MAX_RETRIES + 1):
         try:
-            # Use non-streaming for simplicity and reliability
             completion = client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=0.6,
-                top_p=0.9,
-                max_tokens=300,
+                temperature=0.6 if "kimi" not in model.lower() else 1.0, # Kimi often likes high temp
+                top_p=0.9 if "kimi" not in model.lower() else 1.0,
+                max_tokens=2048 if "mistral" in model.lower() else 16384, # Adjust based on user snippets
                 stream=False,
+                extra_body=extra_body if extra_body else None
             )
             
             if completion.choices and completion.choices[0].message:
@@ -78,16 +86,13 @@ def _call_with_retry(
             
         except Exception as e:
             error_str = str(e).lower()
-            
-            # Check for rate limit errors
-            if "429" in str(e) or "rate" in error_str:
+            if "429" in error_str or "rate" in error_str:
                 logger.warning(f"Rate limited on model {model}, attempt {attempt + 1}")
                 if attempt < MAX_RETRIES:
                     time.sleep(BACKOFF_SECONDS[attempt])
                     continue
                 return None
             
-            # Other errors
             logger.warning(f"Error calling model {model}: {e}")
             if attempt < MAX_RETRIES:
                 time.sleep(BACKOFF_SECONDS[attempt])
@@ -99,33 +104,13 @@ def _call_with_retry(
 
 def call_llm(task: str, messages: List[Dict]) -> str:
     """
-    Call LLM with task-based model routing.
-    
-    Args:
-        task: "persona" or "extract"
-        messages: List of message dicts with "role" and "content"
-    
-    Returns:
-        Response text (plain string)
-    
-    Model Routing:
-        - persona: primary → fallback → script fallback (cycling)
-        - extract: primary → fallback → JSON fallback
-    
-    Handles errors with retry + exponential backoff.
-    Returns script fallback for persona tasks, safe fallback for extract.
+    Call LLM with task-based model routing and separate keys.
     """
     global _script_fallback_index
-    
     settings = get_settings()
-    api_key = settings.NVIDIA_API_KEY
-    
-    if not api_key:
-        logger.error("NVIDIA_API_KEY not configured")
-        return SAFE_FALLBACK_RESPONSE
     
     # Get model configuration for task
-    config = MODEL_CONFIG.get(task)
+    config = get_model_config().get(task)
     if not config:
         logger.error(f"Unknown task: {task}")
         return SAFE_FALLBACK_RESPONSE
@@ -133,19 +118,18 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     primary_model = config["primary"]
     fallback_model = config["fallback"]
     
-    # Get persistent OpenAI client
-    client = get_openai_client()
-    
-    # Try primary model
-    result = _call_with_retry(client, primary_model, messages)
+    # Try primary model with primary key
+    client_primary = get_openai_client(settings.NVIDIA_API_KEY_PRIMARY)
+    result = _call_with_retry(client_primary, primary_model, messages)
     
     if result:
         return result.strip()
     
-    # Try fallback model if different
+    # Try fallback model with fallback key
     if fallback_model and fallback_model != primary_model:
         logger.info(f"Switching to fallback model: {fallback_model}")
-        result = _call_with_retry(client, fallback_model, messages)
+        client_fallback = get_openai_client(settings.NVIDIA_API_KEY_FALLBACK)
+        result = _call_with_retry(client_fallback, fallback_model, messages)
         
         if result:
             return result.strip()
@@ -154,10 +138,9 @@ def call_llm(task: str, messages: List[Dict]) -> str:
     logger.error(f"All LLM attempts failed for task: {task}")
     
     if task == "persona" and SCRIPT_FALLBACK_RESPONSES:
-        # Cycle through script fallback responses to maintain engagement
         response = SCRIPT_FALLBACK_RESPONSES[_script_fallback_index % len(SCRIPT_FALLBACK_RESPONSES)]
         _script_fallback_index += 1
-        logger.info(f"Using script fallback response: {response}")
+        logger.info(f"Using script fallback: {response}")
         return response
     
     return SAFE_FALLBACK_RESPONSE

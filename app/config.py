@@ -27,8 +27,10 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("API_SECRET_KEY", "API_KEY"),
     )
     
-    # NVIDIA API (replaces OpenRouter)
-    NVIDIA_API_KEY: str = ""  # Set via environment variable or .env file
+    # NVIDIA API Keys
+    NVIDIA_API_KEY_PRIMARY: str = ""
+    NVIDIA_API_KEY_FALLBACK: str = ""
+    NVIDIA_API_KEY: str = ""  # Legacy key
     NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     
     # Model Configuration - Using NVIDIA API with Kimi K2.5

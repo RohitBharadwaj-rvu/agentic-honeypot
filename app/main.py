@@ -91,7 +91,11 @@ async def validation_exception_handler(request, exc: RequestValidationError):
     )
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={"detail": "Invalid request body."},
+        content={
+            "detail": "Invalid request body.",
+            "errors": exc.errors(),
+            "hint": "Check if your field names match (e.g., sessionId vs session_id)"
+        },
     )
 
 
