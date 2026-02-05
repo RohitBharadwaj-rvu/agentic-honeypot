@@ -102,6 +102,10 @@ BANK_ACCOUNT_CONTEXT_WORDS: List[str] = [
 BANK_ACCOUNT_PATTERN: Pattern = re.compile(r'\b\d{9,18}\b')
 
 
+# Staff ID pattern (common in Indian scams: Staff ID: 1234 or I m Staff Name ID: 1234)
+STAFF_ID_PATTERN: Pattern = re.compile(r'(?:staff\s*id|employee\s*id|id\s*no)[\s:]*([A-Z0-9-]{3,10})', re.IGNORECASE)
+
+
 # =============================================================================
 # LLM PROMPTS
 # =============================================================================

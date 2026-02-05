@@ -173,12 +173,12 @@ async def webhook(
         
     except asyncio.TimeoutError:
         logger.error(f"Agent timeout for session {request.sessionId} after {AGENT_TIMEOUT_SECONDS}s")
-        reply = "Plese message again sir... my phone is showing network busy and I am confused."
+        reply = "Plese message again sir... my phone is showing error and I am not able to see properly."
     except Exception as e:
         import traceback
         traceback.print_exc()
         logger.error(f"Agent error: {e}")
-        reply = "Sorry sir I am clicking but nothing happening. My phone is old. Please message again."
+        reply = "Sorry sir my phone app is closing again and again. Please message again."
     
     # Add agent reply to messages
     session.messages.append({

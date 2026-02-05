@@ -21,6 +21,7 @@ from app.core.rules import (
     EMAIL_DOMAINS_TO_EXCLUDE,
     SUSPECTED_SCAM_KEYWORDS,
     EXTRACT_SYSTEM_PROMPT,
+    STAFF_ID_PATTERN,
 )
 
 
@@ -63,6 +64,11 @@ def _extract_bank_accounts(text: str) -> List[str]:
     return accounts
 
 
+def _extract_staff_ids(text: str) -> List[str]:
+    """Extract staff IDs using regex."""
+    return [m.strip() for m in STAFF_ID_PATTERN.findall(text)]
+
+
 def _extract_suspicious_keywords(text: str) -> List[str]:
     """Extract suspicious keywords found in the text."""
     text_lower = text.lower()
@@ -75,7 +81,14 @@ def _extract_suspicious_keywords(text: str) -> List[str]:
 
 def _parse_llm_extraction(response: str) -> Dict[str, List[str]]:
     """Parse LLM JSON response for extracted data."""
-    result = {"upiIds": [], "phoneNumbers": [], "phishingLinks": [], "bankAccounts": []}
+    result = {
+        "upiIds": [], 
+        "phoneNumbers": [], 
+        "phishingLinks": [], 
+        "bankAccounts": [],
+        "scammerNames": [],
+        "staffIds": [],
+    }
     
     # Try to find JSON in response
     try:
@@ -95,6 +108,10 @@ def _parse_llm_extraction(response: str) -> Dict[str, List[str]]:
             result["phishingLinks"] = [str(x) for x in data["phishingLinks"] if x]
         if isinstance(data.get("bankAccounts"), list):
             result["bankAccounts"] = [str(x) for x in data["bankAccounts"] if x]
+        if isinstance(data.get("scammerNames"), list):
+            result["scammerNames"] = [str(x) for x in data["scammerNames"] if x]
+        if isinstance(data.get("staffIds"), list):
+            result["staffIds"] = [str(x) for x in data["staffIds"] if x]
             
     except (json.JSONDecodeError, AttributeError):
         pass
@@ -119,14 +136,18 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
     regex_phones = _extract_phone_numbers(message)
     regex_links = _extract_links(message)
     regex_accounts = _extract_bank_accounts(message)
+    regex_staff = _extract_staff_ids(message)
     regex_keywords = _extract_suspicious_keywords(message)
     
-    # Step 2: LLM reinforcement (Only if regex missed critical intel to save time)
+    # Step 2: LLM reinforcement
     llm_upi = []
     llm_phones = []
     llm_links = []
     llm_accounts = []
+    llm_names = []
+    llm_staff = []
     
+    # Use LLM if regex missed critical intel or if we want better name/staff coverage
     needs_llm = not (regex_upi or regex_links or regex_accounts)
     
     if needs_llm:
@@ -154,33 +175,51 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
         llm_phones = llm_data["phoneNumbers"]
         llm_links = llm_data["phishingLinks"]
         llm_accounts = llm_data["bankAccounts"]
+        llm_names = llm_data["scammerNames"]
+        llm_staff = llm_data["staffIds"]
     else:
         logger.info("Skipping LLM extraction (regex already found data)")
     
     # Step 3: Merge all extractions
-    all_upi = set(regex_upi) | set(llm_upi)
-    all_phones = set(regex_phones) | set(llm_phones)
-    all_links = set(regex_links) | set(llm_links)
-    all_accounts = set(regex_accounts) | set(llm_accounts)
-    all_keywords = set(regex_keywords)
+    all_upi = list(set(regex_upi) | set(llm_upi))
+    all_phones = list(set(regex_phones) | set(llm_phones))
+    all_links = list(set(regex_links) | set(llm_links))
+    all_accounts = list(set(regex_accounts) | set(llm_accounts))
+    all_keywords = list(set(regex_keywords))
+
+    # Qualitative extractions (names/ids) to be added to notes
+    found_names = list(set(llm_names))
+    found_staff = list(set(regex_staff) | set(llm_staff))
     
     # Step 4: Merge with existing intelligence (never overwrite)
     existing = state.get("extracted_intelligence", {})
-    existing_upi = set(existing.get("upiIds", []))
-    existing_phones = set(existing.get("phoneNumbers", []))
-    existing_links = set(existing.get("phishingLinks", []))
-    existing_accounts = set(existing.get("bankAccounts", []))
-    existing_keywords = set(existing.get("suspiciousKeywords", []))
-    
     merged_intel = {
-        "upiIds": list(existing_upi | all_upi),
-        "phoneNumbers": list(existing_phones | all_phones),
-        "phishingLinks": list(existing_links | all_links),
-        "bankAccounts": list(existing_accounts | all_accounts),
-        "suspiciousKeywords": list(existing_keywords | all_keywords),
+        "upiIds": list(set(existing.get("upiIds", [])) | set(all_upi)),
+        "phoneNumbers": list(set(existing.get("phoneNumbers", [])) | set(all_phones)),
+        "phishingLinks": list(set(existing.get("phishingLinks", [])) | set(all_links)),
+        "bankAccounts": list(set(existing.get("bankAccounts", [])) | set(all_accounts)),
+        "suspiciousKeywords": list(set(existing.get("suspiciousKeywords", [])) | set(all_keywords)),
     }
     
-    # Determine if scam is confirmed based on extraction
+    # Step 5: Update Agent Notes with qualitative data
+    notes = state.get("agent_notes", "")
+    new_notes = []
+    if found_names:
+        new_names = [n for n in found_names if n.lower() not in notes.lower()]
+        if new_names:
+            new_notes.append(f"Scammer name(s) identified: {', '.join(new_names)}")
+    if found_staff:
+        new_ids = [i for i in found_staff if i.lower() not in notes.lower()]
+        if new_ids:
+            new_notes.append(f"Scammer Staff ID(s) identified: {', '.join(new_ids)}")
+            
+    if new_notes:
+        if notes:
+            notes += "\n" + "\n".join(new_notes)
+        else:
+            notes = "\n".join(new_notes)
+    
+    # Determine if scam is confirmed
     has_critical_intel = bool(
         merged_intel["upiIds"] or 
         merged_intel["bankAccounts"] or 
@@ -189,6 +228,7 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
     
     result = {
         "extracted_intelligence": merged_intel,
+        "agent_notes": notes,
     }
     
     if has_critical_intel:
