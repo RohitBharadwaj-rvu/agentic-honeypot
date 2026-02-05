@@ -130,8 +130,14 @@ def extractor_node(state: AgentState) -> Dict[str, Any]:
         # Build context for LLM
         context = f"Message to analyze: {message}"
         if messages:
-            recent_texts = [m.get("text", "") for m in messages[-3:]]
-            context += f"\n\nRecent context: {' | '.join(recent_texts)}"
+            scammer_texts = [
+                m.get("text", "")
+                for m in messages
+                if str(m.get("sender", "")).lower() == "scammer"
+            ]
+            if scammer_texts:
+                recent_texts = scammer_texts[-3:]
+                context += f"\n\nRecent context: {' | '.join(recent_texts)}"
         
         llm_messages = [
             {"role": "system", "content": EXTRACT_SYSTEM_PROMPT},
