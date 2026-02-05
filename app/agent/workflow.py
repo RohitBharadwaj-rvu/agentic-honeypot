@@ -21,18 +21,25 @@ def route_after_detection(state: AgentState) -> Literal["extractor", "output"]:
     """
     Conditional edge: Route based on scam detection result.
     
-    - If safe: Go directly to output_node
-    - If suspected/confirmed: Continue to extractor_node
+    - If suspected/confirmed: Always go to extractor_node (extract intel)
+    - If safe AND turn_count <= 1: Go to output_node (skip extraction)
+    - If safe AND turn_count > 1: Go to extractor_node (still extract)
     """
     scam_level = state.get("scam_level", "safe")
     turn_count = state.get("turn_count", 0)
     
-    # If conversation has started (turn > 1), keep engaging even if "safe"
-    # This prevents the agent from staying silent or giving default responses in the middle of a chat
+    # Always extract for suspected/confirmed scams (regardless of turn count)
+    # This ensures we capture UPI IDs, bank accounts, phone numbers from scam messages
+    if scam_level in ["suspected", "confirmed"]:
+        logger.info(f"Routing to EXTRACTOR (scam_level={scam_level}, turn={turn_count})")
+        return "extractor"
+    
+    # For safe messages: only skip extraction on first turn to save resources
     if scam_level == "safe" and turn_count <= 1:
-        logger.info("Routing to OUTPUT (safe message, initial turn)")
+        logger.info("Routing to OUTPUT (safe message, initial turn, no extraction)")
         return "output"
     else:
+        # Safe message but in ongoing conversation OR turn > 1: still extract
         logger.info(f"Routing to EXTRACTOR (scam_level={scam_level}, turn={turn_count})")
         return "extractor"
 

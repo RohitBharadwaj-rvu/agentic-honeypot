@@ -5,9 +5,12 @@ Only updates extracted_intelligence, never overwrites existing values.
 """
 import re
 import json
+import logging
 from typing import Dict, Any, List
 
 from app.agent.state import AgentState
+
+logger = logging.getLogger(__name__)
 from app.agent.llm import call_llm
 from app.core.rules import (
     UPI_PATTERN,
