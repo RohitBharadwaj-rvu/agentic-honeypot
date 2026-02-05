@@ -7,6 +7,7 @@ import time
 from typing import List, Dict, Optional
 
 from openai import OpenAI
+import httpx
 
 from app.config import get_settings
 from app.core.rules import SAFE_FALLBACK_RESPONSE, SCRIPT_FALLBACK_RESPONSES
@@ -29,7 +30,7 @@ def get_openai_client(api_key: Optional[str] = None) -> OpenAI:
         _clients_cache[key] = OpenAI(
             base_url=settings.NVIDIA_BASE_URL,
             api_key=key,
-            timeout=25.0,  # Stay under 30s HuggingFace Spaces timeout
+            timeout=httpx.Timeout(25.0),  # Stay under 30s HuggingFace Spaces timeout
         )
     return _clients_cache[key]
 
