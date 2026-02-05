@@ -29,6 +29,7 @@ def get_openai_client(api_key: Optional[str] = None) -> OpenAI:
         _clients_cache[key] = OpenAI(
             base_url=settings.NVIDIA_BASE_URL,
             api_key=key,
+            timeout=25.0,  # Stay under 30s HuggingFace Spaces timeout
         )
     return _clients_cache[key]
 
@@ -76,7 +77,7 @@ def _call_with_retry(
                 messages=messages,
                 temperature=0.6 if "kimi" not in model.lower() else 1.0, # Kimi often likes high temp
                 top_p=0.9 if "kimi" not in model.lower() else 1.0,
-                max_tokens=2048 if "mistral" in model.lower() else 16384, # Adjust based on user snippets
+                max_tokens=512 if "mistral" in model.lower() else 1024,  # Reduced for faster responses
                 stream=False,
                 extra_body=extra_body if extra_body else None
             )
