@@ -63,7 +63,7 @@ class LLMClient:
                 base_url=self.base_url,
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "HTTP-Referer": "https://honeypot.local",  # Required by OpenRouter
+                    "HTTP-Referer": settings.OPENROUTER_REFERER,  # Required by OpenRouter
                     "X-Title": "Agentic Honeypot",
                 },
                 timeout=60.0,  # LLMs can be slow

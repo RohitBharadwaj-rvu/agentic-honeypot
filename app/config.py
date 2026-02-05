@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     # OpenRouter API (Alternative LLM)
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    OPENROUTER_REFERER: str = "https://honeypot.local"
     
     # API Security
     API_SECRET_KEY: str = Field(
