@@ -27,7 +27,7 @@ def get_openai_client(api_key: Optional[str] = None) -> OpenAI:
     
     if key not in _clients_cache:
         _clients_cache[key] = OpenAI(
-            base_url="https://integrate.api.nvidia.com/v1",
+            base_url=settings.NVIDIA_BASE_URL,
             api_key=key,
         )
     return _clients_cache[key]

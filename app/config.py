@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_REST_URL: str
     UPSTASH_REDIS_REST_TOKEN: str
     
+    # OpenRouter API (Alternative LLM)
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    
     # API Security
     API_SECRET_KEY: str = Field(
         ...,
