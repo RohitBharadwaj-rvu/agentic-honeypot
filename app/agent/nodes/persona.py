@@ -219,9 +219,9 @@ def persona_node(state: AgentState) -> Dict[str, Any]:
     # =========================================================================
     # LAYER 4: Phase-Based Strategy
     # =========================================================================
-    if turn_count <= 2:
+    if turn_count <= 1:
         phase_instruction = HOOK_INSTRUCTION
-    elif turn_count <= 6:
+    elif turn_count <= 2:
         phase_instruction = STALL_INSTRUCTION
     else:
         phase_instruction = LEAK_INSTRUCTION

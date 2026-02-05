@@ -66,23 +66,17 @@ OVERRIDE_PATTERNS: Set[str] = {
     "maintenance mode",
 }
 
-# Meta-instruction patterns (training scenarios, etc.)
+# Meta-instruction patterns (Higher confidence injection attempts)
 META_INSTRUCTION_PATTERNS: Set[str] = {
     "output should be",
     "response should be",
-    "generate a",
-    "create a scenario",
-    "training data",
+    "ignore your instructions",
+    "system instructions",
+    "initial prompt",
     "training scenario",
     "training session",
-    "example response",
-    "sample output",
-    "template",
     "realistic scammer",
     "scammer message",
-    "act as",
-    "complete the following",
-    "continue this",
 }
 
 # Prompt extraction attempts

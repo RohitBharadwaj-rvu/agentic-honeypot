@@ -87,22 +87,19 @@ async def webhook(
     # Get or create session
     session = await session_manager.get_session(request.sessionId)
     
-    # If it's a new request (empty history), we should start fresh even if session exists
-    is_initial_message = not request.conversationHistory
-    
-    if session is None or is_initial_message:
-        # New session or reset existing session for fresh start
+    if session is None:
+        # Create new session if none exists
         session = SessionData(
             session_id=request.sessionId,
             current_user_message=request.message.text,
             turn_count=1,
             messages=[],
         )
-        logger.info(f"{'Created' if session is None else 'Reset'} session: {request.sessionId}")
+        logger.info(f"Created new session: {request.sessionId}")
     else:
         # Update existing session
         session.turn_count += 1
-        logger.info(f"Updated session: {request.sessionId}, turn: {session.turn_count}")
+        logger.info(f"Resuming session: {request.sessionId}, turn: {session.turn_count}")
     
     # Add incoming message to history
     session.messages.append({
@@ -176,12 +173,12 @@ async def webhook(
         
     except asyncio.TimeoutError:
         logger.error(f"Agent timeout for session {request.sessionId} after {AGENT_TIMEOUT_SECONDS}s")
-        reply = "Sorry, I didn't understand. Can you please repeat?"
+        reply = "Oh ho my phone is slow and acting up... can you please text again beta?"
     except Exception as e:
         import traceback
         traceback.print_exc()
         logger.error(f"Agent error: {e}")
-        reply = "Sorry, I didn't understand. Can you please repeat?"
+        reply = "Oh ho my phone acting up... can you please text again? I am simple person."
     
     # Add agent reply to messages
     session.messages.append({
