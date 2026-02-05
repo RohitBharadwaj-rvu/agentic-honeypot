@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-AGENT_TIMEOUT_SECONDS = 25  # Stay under 30s HuggingFace Spaces timeout
+AGENT_TIMEOUT_SECONDS = 28  # Stay under 30s HuggingFace Spaces timeout
 
 
 @router.get("/health")

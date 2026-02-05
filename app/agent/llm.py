@@ -78,7 +78,7 @@ def _call_with_retry(
                 messages=messages,
                 temperature=0.6 if "kimi" not in model.lower() else 1.0, # Kimi often likes high temp
                 top_p=0.9 if "kimi" not in model.lower() else 1.0,
-                max_tokens=512 if "mistral" in model.lower() else 1024,  # Reduced for faster responses
+                max_tokens=100,  # SMS replies should be very short - faster generation
                 stream=False,
                 extra_body=extra_body if extra_body else None
             )
