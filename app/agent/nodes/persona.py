@@ -36,6 +36,8 @@ BEHAVIOR:
 
 {phase_instruction}
 
+{language_instruction}
+
 OUTPUT: Plain text only. Occasional typos. Short sentences. No emojis. Never say "As an AI"."""
 
 HOOK_INSTRUCTION = "INITIAL STAGE: You are curious and helpful. Ask how you can fix the problem. Be polite and stay in character."
@@ -58,6 +60,7 @@ def persona_node(state: AgentState) -> Dict[str, Any]:
     raw_message = state["current_user_message"]
     messages = state.get("messages", [])
     turn_count = state.get("turn_count", 1)
+    language_code = state.get("language", "en")
     
     # Get persona details from state
     p_name = state.get("persona_name", "Ramesh Kumar")
@@ -136,6 +139,15 @@ def persona_node(state: AgentState) -> Dict[str, Any]:
             phase_instruction = LEAK_INSTRUCTION
 
     # =========================================================================
+    # LAYER 4.5: Language Instruction
+    # =========================================================================
+    if language_code == "hi":
+        language_instruction = "LANGUAGE: Use Hindi only."
+    else:
+        # Default to English with Hinglish flavor as per guidelines
+        language_instruction = "LANGUAGE: Use English primarily. You can use occasional Hindi words (Hinglish), but do NOT respond fully in Hindi unless the user is speaking Hindi and you need to clarify."
+
+    # =========================================================================
     # LAYER 5: Build System Prompt with Canary
     # =========================================================================
     system_prompt = PERSONA_SYSTEM_PROMPT.format(
@@ -150,6 +162,7 @@ def persona_node(state: AgentState) -> Dict[str, Any]:
         fake_bank_account=fake_bank_account,
         fake_ifsc=fake_ifsc,
         phase_instruction=phase_instruction,
+        language_instruction=language_instruction,
         canary_token=canary,
     )
     

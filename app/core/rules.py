@@ -138,6 +138,10 @@ SCRIPT_FALLBACK_RESPONSES: List[str] = [
     "Sir I am confused, my screen becomes black suddenly.",
     "I am not understanding what to press here. One minute.",
     "The network is very bad today, I am trying to reply.",
+    "Beta, my neighbor is calling me, I will check and tell you in one minute.",
+    "Wait, I am getting another call on my phone. One second.",
+    "Sir, the SMS is not coming in my phone. Is there any problem?",
+    "I am trying to type but my hands are shaking, sorry sir.",
 ]
 
 # Response used when network/LLM issues occur (original fallback)
