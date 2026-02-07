@@ -135,6 +135,9 @@ SCRIPT_FALLBACK_RESPONSES: List[str] = [
     "Signal is weak here, I am trying to open the message again.",
     "Beta I am looking for my glasses, please wait one minute.",
     "Sorry, my internet is not working properly. What were you saying?",
+    "Sir I am confused, my screen becomes black suddenly.",
+    "I am not understanding what to press here. One minute.",
+    "The network is very bad today, I am trying to reply.",
 ]
 
 # Response used when network/LLM issues occur (original fallback)

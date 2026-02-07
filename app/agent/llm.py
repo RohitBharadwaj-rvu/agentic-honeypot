@@ -14,8 +14,9 @@ from app.core.rules import SAFE_FALLBACK_RESPONSE, SCRIPT_FALLBACK_RESPONSES
 
 logger = logging.getLogger(__name__)
 
-# Track script fallback index for cycling
-_script_fallback_index = 0
+# Track script fallback index for cycling - Randomized start to avoid same starting message
+import random
+_script_fallback_index = random.randint(0, 100)
 
 # Persistent OpenAI client instances for each key
 _clients_cache: Dict[str, OpenAI] = {}
@@ -51,8 +52,8 @@ def get_model_config():
     }
 
 
-# Retry configuration
-MAX_RETRIES = 0
+# Retry configuration - set to 1 to handle transient 429s
+MAX_RETRIES = 1
 BACKOFF_SECONDS = [1, 2]
 
 
@@ -90,6 +91,12 @@ def _call_with_retry(
             
         except Exception as e:
             error_str = str(e).lower()
+            
+            # If timeout, do NOT retry. Jump to fallback immediately to save time.
+            if "timeout" in error_str or "deadline" in error_str:
+                logger.warning(f"Timeout on model {model}. Skipping retries.")
+                return None
+
             if "429" in error_str or "rate" in error_str:
                 logger.warning(f"Rate limited on model {model}, attempt {attempt + 1}")
                 if attempt < MAX_RETRIES:
